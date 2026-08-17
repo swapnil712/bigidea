@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
 import Modal from "@/components/local/Modal";
 import MultiPicker, { PickerGroup } from "@/components/local/MultiPicker";
@@ -20,10 +19,14 @@ interface AddToListModalProps {
   searchPlaceholder?: string;
   emptyLabel?: string;
   groups: PickerGroup[];
+  // Selection is controlled so the caller can tick an item it has just created
+  // in a follow-up "create" modal.
+  selected: string[];
+  onSelectedChange: (ids: string[]) => void;
   onAdd: (ids: string[]) => void;
-  // Creates a fresh item from whatever was typed and returns its id, so the
-  // picker can tick it straight away.
-  onCreate?: (name: string, groupId: string) => string | undefined;
+  // Fired when the picker's "add new" is used — the caller opens its own create
+  // form, seeded with whatever was typed in the search box.
+  onRequestCreate?: (name: string) => void;
 }
 
 export default function AddToListModal({
@@ -39,15 +42,11 @@ export default function AddToListModal({
   searchPlaceholder,
   emptyLabel,
   groups,
+  selected,
+  onSelectedChange,
   onAdd,
-  onCreate,
+  onRequestCreate,
 }: AddToListModalProps) {
-
-  const [selected, setSelected] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (show) setSelected([]);
-  }, [show]);
 
   const add = () => {
     if (!selected.length) return;
@@ -82,14 +81,8 @@ export default function AddToListModal({
         emptyLabel={emptyLabel}
         groups={groups}
         selected={selected}
-        onChange={setSelected}
-        onAddNew={
-          onCreate &&
-          ((groupId, name) => {
-            const created = onCreate(name, groupId);
-            if (created) setSelected((prev) => [...prev, created]);
-          })
-        }
+        onChange={onSelectedChange}
+        onAddNew={onRequestCreate && ((_, name) => onRequestCreate(name))}
       />
     </Modal>
   );

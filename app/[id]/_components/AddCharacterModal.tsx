@@ -12,6 +12,8 @@ import {
   CharacterWardrobeItem,
   PropProps,
 } from "@/types/project";
+import CreatePropModal from "./CreatePropModal";
+import CreateWardrobeModal from "./CreateWardrobeModal";
 
 interface AddCharacterModalProps {
   show: boolean;
@@ -20,8 +22,8 @@ interface AddCharacterModalProps {
   wardrobe: CharacterWardrobeItem[];
   props: PropProps[];
   onAdd: (entry: CharacterLookInSceneProps) => void;
-  onCreateWardrobe: (name: string, characterId: string) => CharacterWardrobeItem;
-  onCreateProp: (name: string, characterId: string) => PropProps;
+  onCreateWardrobe: (item: CharacterWardrobeItem) => void;
+  onCreateProp: (prop: PropProps) => void;
 }
 
 // "Sarah \"Booker\" Petree" -> "Sarah", so the picker can say "Sarah's Wardrobe".
@@ -41,6 +43,9 @@ export default function AddCharacterModal({
   const [characterId, setCharacterId] = useState<string | undefined>(undefined);
   const [wardrobeIds, setWardrobeIds] = useState<string[]>([]);
   const [propIds, setPropIds] = useState<string[]>([]);
+  // Hold the name typed in the search box while a create form is open.
+  const [createWardrobeName, setCreateWardrobeName] = useState<string | undefined>(undefined);
+  const [createPropName, setCreatePropName] = useState<string | undefined>(undefined);
 
   const select = (id?: string) => {
     setCharacterId(id);
@@ -89,74 +94,92 @@ export default function AddCharacterModal({
   };
 
   return (
-    <Modal
-      show={show}
-      size="S"
-      icon={MdPersonAddAlt}
-      title="Add Character to Scene"
-      onClose={onClose}
-      buttons={[
-        {
-          label: "Add Character",
-          icon: MdPersonAddAlt,
-          type: "Primary",
-          stretch: true,
-          onClick: add,
-        },
-      ]}
-    >
-      <div className="flex flex-col gap-4">
+    <>
+      <Modal
+        show={show}
+        size="S"
+        icon={MdPersonAddAlt}
+        title="Add Character to Scene"
+        onClose={onClose}
+        buttons={[
+          {
+            label: "Add Character",
+            icon: MdPersonAddAlt,
+            type: "Primary",
+            stretch: true,
+            onClick: add,
+          },
+        ]}
+      >
+        <div className="flex flex-col gap-4">
 
-        {characters.length === 0 ? (
-          <p className="opacity-60 text-sm">Every character is already in this scene.</p>
-        ) : (
-          <Input
-            id="sceneCharacter"
-            type="select"
-            label="Select Character from List"
-            value={characterId}
-            options={toOptions(characters)}
-            onChange={select}
+          {characters.length === 0 ? (
+            <p className="opacity-60 text-sm">Every character is already in this scene.</p>
+          ) : (
+            <Input
+              id="sceneCharacter"
+              type="select"
+              label="Select Character from List"
+              value={characterId}
+              options={toOptions(characters)}
+              onChange={select}
+            />
+          )}
+
+          <MultiPicker
+            id="sceneWardrobe"
+            label="Wardrobe"
+            hint="(add multiple)"
+            tone="Violet"
+            capsuleIcon={MdOutlineCheckroom}
+            searchPlaceholder="Search wardrobe"
+            emptyLabel="No wardrobe selected"
+            groups={groups(wardrobe, "Wardrobe", "Add New Wardrobe")}
+            selected={wardrobeIds}
+            onChange={setWardrobeIds}
+            onAddNew={(_, name) => setCreateWardrobeName(name)}
           />
-        )}
 
-        <MultiPicker
-          id="sceneWardrobe"
-          label="Wardrobe"
-          hint="(add multiple)"
-          tone="Violet"
-          capsuleIcon={MdOutlineCheckroom}
-          searchPlaceholder="Search wardrobe"
-          emptyLabel="No wardrobe selected"
-          groups={groups(wardrobe, "Wardrobe", "Add New Wardrobe")}
-          selected={wardrobeIds}
-          onChange={setWardrobeIds}
-          onAddNew={(_, name) => {
-            if (!characterId) return;
-            const created = onCreateWardrobe(name || "New Wardrobe Item", characterId);
-            setWardrobeIds([...wardrobeIds, created.id]);
-          }}
-        />
+          <MultiPicker
+            id="sceneCharacterProps"
+            label="Props"
+            hint="(add multiple)"
+            tone="Amber"
+            capsuleIcon={MdOutlineInventory2}
+            searchPlaceholder="Search props"
+            emptyLabel="No props selected"
+            groups={groups(props, "Props", "Add New Prop")}
+            selected={propIds}
+            onChange={setPropIds}
+            onAddNew={(_, name) => setCreatePropName(name)}
+          />
 
-        <MultiPicker
-          id="sceneCharacterProps"
-          label="Props"
-          hint="(add multiple)"
-          tone="Amber"
-          capsuleIcon={MdOutlineInventory2}
-          searchPlaceholder="Search props"
-          emptyLabel="No props selected"
-          groups={groups(props, "Props", "Add New Prop")}
-          selected={propIds}
-          onChange={setPropIds}
-          onAddNew={(_, name) => {
-            if (!characterId) return;
-            const created = onCreateProp(name || "New Prop", characterId);
-            setPropIds([...propIds, created.id]);
-          }}
-        />
+        </div>
+      </Modal>
 
-      </div>
-    </Modal>
+      <CreateWardrobeModal
+        show={createWardrobeName !== undefined}
+        onClose={() => setCreateWardrobeName(undefined)}
+        initialName={createWardrobeName}
+        characters={characters}
+        defaultCharacter={characterId}
+        onCreate={(item) => {
+          onCreateWardrobe(item);
+          setWardrobeIds((prev) => [...prev, item.id]);
+        }}
+      />
+
+      <CreatePropModal
+        show={createPropName !== undefined}
+        onClose={() => setCreatePropName(undefined)}
+        initialName={createPropName}
+        characters={characters}
+        defaultCharacter={characterId}
+        onCreate={(prop) => {
+          onCreateProp(prop);
+          setPropIds((prev) => [...prev, prop.id]);
+        }}
+      />
+    </>
   );
 }

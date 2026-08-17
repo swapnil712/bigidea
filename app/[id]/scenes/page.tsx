@@ -16,6 +16,7 @@ import { dummyLocations } from "@/constants/dummy/dummyLocations";
 import SceneCastRow from "../_components/SceneCastRow";
 import AddCharacterModal from "../_components/AddCharacterModal";
 import AddPropModal from "../_components/AddPropModal";
+import CreateSceneModal from "../_components/CreateSceneModal";
 
 interface SceneCast {
   characters: CharacterLookInSceneProps[],
@@ -28,10 +29,13 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<string | undefined>( undefined )
   const [showAddCharacter, setShowAddCharacter] = useState(false)
   const [showAddProp, setShowAddProp] = useState(false)
+  // Set to the script day of whichever sidebar group's "+" was pressed.
+  const [createScene, setCreateScene] = useState<number | undefined>(undefined)
 
   // Edits live here until there is somewhere to save them — keyed by scene id
   // so switching scenes keeps whatever was added to each one.
   const [castEdits, setCastEdits] = useState<Record<string, SceneCast>>({})
+  const [sceneList, setSceneList] = useState<SceneProps[]>([])
   const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
   const [propCatalogue, setPropCatalogue] = useState<PropProps[]>([])
 
@@ -44,6 +48,7 @@ export default function Home() {
   }, [ project ])
 
   useEffect(() => {
+    setSceneList( project.scenes ?? [] )
     setWardrobe( project.wardrobe ?? [] )
     setPropCatalogue( project.props ?? [] )
   }, [ project ])
@@ -52,7 +57,7 @@ export default function Home() {
     setActiveTab("plan")
   }, [])
 
-  const currentScene = project.scenes?.find( ix => ix.id === activeScene)
+  const currentScene = sceneList.find( ix => ix.id === activeScene)
 
   const locationName = ( id: string ) => project.locations?.find( ix => ix.id === id )?.name ?? id
 
@@ -69,28 +74,11 @@ export default function Home() {
   const wardrobeName = ( id: string ) => wardrobe.find( ix => ix.id === id )?.name ?? id
   const propName = ( id: string ) => propCatalogue.find( ix => ix.id === id )?.name ?? id
 
-  const createWardrobe = ( name: string, characterId: string ): CharacterWardrobeItem => {
-    const item: CharacterWardrobeItem = {
-      id: `wrd-${ Date.now() }`,
-      name,
-      originCharacter: characterId,
-      description: "",
-      category: "everyday"
-    }
-    setWardrobe( prev => [ ...prev, item ])
-    return item
-  }
+  // The create modals build the item from their own form — this just files it
+  // in the catalogue the pickers read from.
+  const createWardrobe = ( item: CharacterWardrobeItem ) => setWardrobe( prev => [ ...prev, item ])
 
-  const createProp = ( name: string, characterId?: string ): PropProps => {
-    const item: PropProps = {
-      id: `prp-${ Date.now() }`,
-      name,
-      look: "Default look",
-      originCharacter: characterId
-    }
-    setPropCatalogue( prev => [ ...prev, item ])
-    return item
-  }
+  const createProp = ( item: PropProps ) => setPropCatalogue( prev => [ ...prev, item ])
 
   const addProps = ( ids: string[] ) => updateCast({
     props: [
@@ -104,7 +92,7 @@ export default function Home() {
 
     <aside className="min-w-1/5 flex p-2 flex-col sticky top-0">
       {Object.entries(
-        (project.scenes ?? []).reduce<Record<number, SceneProps[]>>((groups, scene) => {
+        sceneList.reduce<Record<number, SceneProps[]>>((groups, scene) => {
           groups[scene.scriptDay] = groups[scene.scriptDay] || [];
           groups[scene.scriptDay].push(scene);
           return groups;
@@ -117,7 +105,12 @@ export default function Home() {
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
             <span>Script Day {scriptDay}</span>
             <div className="border-color border-t grow" />
-            <Button icon={ MdAdd } size="Small" type="Tertiary" />
+            <Button
+              icon={ MdAdd }
+              size="Small"
+              type="Tertiary"
+              onClick={ () => setCreateScene( Number( scriptDay )) }
+            />
           </div>
 
 
@@ -265,6 +258,17 @@ export default function Home() {
                         props={ propCatalogue.filter( ix => !cast.props.some( entry => entry.id === ix.id )) }
                         onAdd={ addProps }
                         onCreateProp={ createProp }
+                      />
+
+                      <CreateSceneModal
+                        show={ createScene !== undefined }
+                        onClose={ () => setCreateScene( undefined ) }
+                        locations={ project.locations ?? [] }
+                        defaultScriptDay={ createScene }
+                        onCreate={ ( scene ) => {
+                          setSceneList( prev => [ ...prev, scene ])
+                          setActiveScene( scene.id )
+                        }}
                       />
                      </div> }
 

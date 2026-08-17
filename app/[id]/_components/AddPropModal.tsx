@@ -6,6 +6,7 @@ import Modal from "@/components/local/Modal";
 import MultiPicker, { PickerGroup } from "@/components/local/MultiPicker";
 import { toOptions } from "@/functions/toOptions";
 import { CharacterProps, PropProps } from "@/types/project";
+import CreatePropModal from "./CreatePropModal";
 
 interface AddPropModalProps {
   show: boolean;
@@ -13,7 +14,7 @@ interface AddPropModalProps {
   characters: CharacterProps[];
   props: PropProps[];
   onAdd: (propIds: string[]) => void;
-  onCreateProp: (name: string, characterId?: string) => PropProps;
+  onCreateProp: (prop: PropProps) => void;
 }
 
 const firstName = (name?: string) => name?.trim().split(" ")[0] ?? "Character";
@@ -28,6 +29,8 @@ export default function AddPropModal({
 }: AddPropModalProps) {
 
   const [propIds, setPropIds] = useState<string[]>([]);
+  // Holds the name typed in the search box while the create form is open.
+  const [createName, setCreateName] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (show) setPropIds([]);
@@ -59,38 +62,48 @@ export default function AddPropModal({
   };
 
   return (
-    <Modal
-      show={show}
-      size="S"
-      icon={MdOutlineInventory2}
-      title="Add Props to Scene"
-      onClose={onClose}
-      buttons={[
-        {
-          label: "Add Props",
-          icon: MdOutlineInventory2,
-          type: "Primary",
-          stretch: true,
-          onClick: add,
-        },
-      ]}
-    >
-      <MultiPicker
-        id="sceneProps"
-        label="Props"
-        hint="(add multiple)"
-        tone="Amber"
-        capsuleIcon={MdOutlineInventory2}
-        searchPlaceholder="Search props"
-        emptyLabel="No props selected"
-        groups={groups}
-        selected={propIds}
-        onChange={setPropIds}
-        onAddNew={(_, name) => {
-          const created = onCreateProp(name || "New Prop");
-          setPropIds([...propIds, created.id]);
+    <>
+      <Modal
+        show={show}
+        size="S"
+        icon={MdOutlineInventory2}
+        title="Add Props to Scene"
+        onClose={onClose}
+        buttons={[
+          {
+            label: "Add Props",
+            icon: MdOutlineInventory2,
+            type: "Primary",
+            stretch: true,
+            onClick: add,
+          },
+        ]}
+      >
+        <MultiPicker
+          id="sceneProps"
+          label="Props"
+          hint="(add multiple)"
+          tone="Amber"
+          capsuleIcon={MdOutlineInventory2}
+          searchPlaceholder="Search props"
+          emptyLabel="No props selected"
+          groups={groups}
+          selected={propIds}
+          onChange={setPropIds}
+          onAddNew={(_, name) => setCreateName(name)}
+        />
+      </Modal>
+
+      <CreatePropModal
+        show={createName !== undefined}
+        onClose={() => setCreateName(undefined)}
+        initialName={createName}
+        characters={characters}
+        onCreate={(prop) => {
+          onCreateProp(prop);
+          setPropIds((prev) => [...prev, prop.id]);
         }}
       />
-    </Modal>
+    </>
   );
 }

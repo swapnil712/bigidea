@@ -4,7 +4,7 @@ import { SectionHeader } from "@/components/local/SectionHeader";
 import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineDryCleaning, MdOutlineViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { CharacterWardrobeItem, ReferenceImage } from "@/types/project";
+import { CharacterWardrobeItem, ReferenceImage, WardrobeCategories } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
@@ -15,16 +15,20 @@ import { sceneLabel } from "@/functions/sceneLabel";
 import ReferenceImages from "@/components/local/ReferenceImages";
 import AddSceneModal from "../_components/AddSceneModal";
 import SceneCastRow from "../_components/SceneCastRow";
+import CreateWardrobeModal from "../_components/CreateWardrobeModal";
 
 export default function Home() {
 
   const [activeItem, setActiveItem] = useState<string | undefined>(undefined)
   const [showAddScene, setShowAddScene] = useState(false)
+  // Set to the category of whichever sidebar group's "+" was pressed.
+  const [createItem, setCreateItem] = useState<WardrobeCategories | undefined>(undefined)
 
   // Edits live here until there is somewhere to save them — keyed by item id so
   // switching items keeps whatever was added to each one.
   const [sceneEdits, setSceneEdits] = useState<Record<string, string[]>>({})
   const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
+  const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
 
   const project = useProject()
 
@@ -34,7 +38,11 @@ export default function Home() {
       }
   }, [ project ])
 
-  const currentItem = project.wardrobe?.find( ix => ix.id === activeItem)
+  useEffect(() => {
+    setWardrobe( project.wardrobe ?? [] )
+  }, [ project ])
+
+  const currentItem = wardrobe.find( ix => ix.id === activeItem)
 
   const characterOptions = toOptions( project.characters, "name" )
 
@@ -66,7 +74,7 @@ export default function Home() {
 
     <aside className="min-w-1/5 flex p-2 flex-col  sticky top-0">
       {Object.entries(
-        (project.wardrobe ?? []).reduce<Record<string, CharacterWardrobeItem[]>>((groups, item) => {
+        wardrobe.reduce<Record<string, CharacterWardrobeItem[]>>((groups, item) => {
           groups[item.category] = groups[item.category] || [];
           groups[item.category].push(item);
           return groups;
@@ -79,7 +87,12 @@ export default function Home() {
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
             <span>{ wardrobeCategoryOptions.find ( ix => ix.id === wardrobeCategory )?.label }</span>
             <div className="border-color border-t grow" />
-            <Button icon={ MdAdd } size="Small" type="Tertiary" />
+            <Button
+              icon={ MdAdd }
+              size="Small"
+              type="Tertiary"
+              onClick={ () => setCreateItem( wardrobeCategory as WardrobeCategories ) }
+            />
           </div>
 
 
@@ -190,6 +203,17 @@ export default function Home() {
                         scenes={ ( project.scenes ?? [] ).filter( ix => !scenes.includes( ix.id )) }
                         locations={ project.locations }
                         onAdd={ ( ids ) => updateScenes([ ...scenes, ...ids ]) }
+                      />
+
+                      <CreateWardrobeModal
+                        show={ createItem !== undefined }
+                        onClose={ () => setCreateItem( undefined ) }
+                        characters={ project.characters ?? [] }
+                        defaultCategory={ createItem }
+                        onCreate={ ( item ) => {
+                          setWardrobe( prev => [ ...prev, item ])
+                          setActiveItem( item.id )
+                        }}
                       />
 
 

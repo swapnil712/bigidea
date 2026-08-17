@@ -9,15 +9,19 @@ import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import EmptyState from "@/components/local/EmptyState";
 import StoryboardCard from "../_components/StoryboardCard";
+import CreateSceneModal from "../_components/CreateSceneModal";
 import { intExtOptions, timeOfDayOptions } from "@/constants/plot";
 
 export default function Home() {
 
   const [activeScene, setActiveScene] = useState<string | undefined>(undefined)
+  // Set to the script day of whichever sidebar group's "+" was pressed.
+  const [createScene, setCreateScene] = useState<number | undefined>(undefined)
 
   // Prompt edits live here until there is somewhere to save them — keyed by shot
   // id so switching scenes keeps whatever was typed against each frame.
   const [promptEdits, setPromptEdits] = useState<Record<string, string>>({})
+  const [sceneList, setSceneList] = useState<SceneProps[]>([])
 
   const project = useProject()
 
@@ -27,7 +31,11 @@ export default function Home() {
       }
   }, [ project ])
 
-  const currentScene = project.scenes?.find( ix => ix.id === activeScene)
+  useEffect(() => {
+    setSceneList( project.scenes ?? [] )
+  }, [ project ])
+
+  const currentScene = sceneList.find( ix => ix.id === activeScene)
 
   const locationName = ( id: string ) => project.locations?.find( ix => ix.id === id )?.name ?? id
 
@@ -37,7 +45,7 @@ export default function Home() {
 
     <aside className="min-w-1/5 flex p-2 flex-col sticky top-0">
       {Object.entries(
-        (project.scenes ?? []).reduce<Record<number, SceneProps[]>>((groups, scene) => {
+        sceneList.reduce<Record<number, SceneProps[]>>((groups, scene) => {
           groups[scene.scriptDay] = groups[scene.scriptDay] || [];
           groups[scene.scriptDay].push(scene);
           return groups;
@@ -50,7 +58,12 @@ export default function Home() {
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
             <span>Script Day {scriptDay}</span>
             <div className="border-color border-t grow" />
-            <Button icon={ MdAdd } size="Small" type="Tertiary" />
+            <Button
+              icon={ MdAdd }
+              size="Small"
+              type="Tertiary"
+              onClick={ () => setCreateScene( Number( scriptDay )) }
+            />
           </div>
 
 
@@ -110,6 +123,17 @@ export default function Home() {
                         title="There are no shots to storyboard"
                         subtitle="Break the scene down into shots and the frames will show up here."
                       /> }
+
+                      <CreateSceneModal
+                        show={ createScene !== undefined }
+                        onClose={ () => setCreateScene( undefined ) }
+                        locations={ project.locations ?? [] }
+                        defaultScriptDay={ createScene }
+                        onCreate={ ( scene ) => {
+                          setSceneList( prev => [ ...prev, scene ])
+                          setActiveScene( scene.id )
+                        }}
+                      />
 
                     </div>
 

@@ -4,7 +4,7 @@ import { SectionHeader } from "@/components/local/SectionHeader";
 import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineAddBox, MdOutlineViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { AssetProps, ReferenceImage } from "@/types/project";
+import { AssetCategories, AssetProps, ReferenceImage } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
@@ -15,16 +15,20 @@ import { sceneLabel } from "@/functions/sceneLabel";
 import ReferenceImages from "@/components/local/ReferenceImages";
 import AddSceneModal from "../_components/AddSceneModal";
 import SceneCastRow from "../_components/SceneCastRow";
+import CreateAssetModal from "../_components/CreateAssetModal";
 
 export default function Home() {
 
   const [activeAsset, setActiveAsset] = useState<string | undefined>(undefined)
   const [showAddScene, setShowAddScene] = useState(false)
+  // Set to the category of whichever sidebar group's "+" was pressed.
+  const [createAsset, setCreateAsset] = useState<AssetCategories | undefined>(undefined)
 
   // Edits live here until there is somewhere to save them — keyed by asset id so
   // switching assets keeps whatever was added to each one.
   const [sceneEdits, setSceneEdits] = useState<Record<string, string[]>>({})
   const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
+  const [assets, setAssets] = useState<AssetProps[]>([])
 
   const project = useProject()
 
@@ -34,7 +38,11 @@ export default function Home() {
       }
   }, [ project ])
 
-  const currentAsset = project.assets?.find( ix => ix.id === activeAsset)
+  useEffect(() => {
+    setAssets( project.assets ?? [] )
+  }, [ project ])
+
+  const currentAsset = assets.find( ix => ix.id === activeAsset)
 
   const sceneOptions = toOptions( project.scenes, ( scene ) => sceneLabel( scene, project.locations ) )
 
@@ -66,12 +74,12 @@ export default function Home() {
 
     <aside className="min-w-1/5 flex p-2 flex-col  sticky top-0">
       {Object.entries(
-        (project.assets ?? []).reduce<Record<string, AssetProps[]>>((groups, asset) => {
+        assets.reduce<Record<string, AssetProps[]>>((groups, asset) => {
           groups[asset.category] = groups[asset.category] || [];
           groups[asset.category].push(asset);
           return groups;
         }, {})
-      ).map(([assetCategory, assets]) => (
+      ).map(([assetCategory, categoryAssets]) => (
 
         <div key={assetCategory} className="flex flex-col">
 
@@ -79,11 +87,16 @@ export default function Home() {
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
             <span>{ assetCategoryOptions.find ( ix => ix.id === assetCategory )?.label }</span>
             <div className="border-color border-t grow" />
-            <Button icon={ MdAdd } size="Small" type="Tertiary" />
+            <Button
+              icon={ MdAdd }
+              size="Small"
+              type="Tertiary"
+              onClick={ () => setCreateAsset( assetCategory as AssetCategories ) }
+            />
           </div>
 
 
-          {assets.map((item) => (
+          {categoryAssets.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -194,6 +207,16 @@ export default function Home() {
                         scenes={ ( project.scenes ?? [] ).filter( ix => !scenes.includes( ix.id )) }
                         locations={ project.locations }
                         onAdd={ ( ids ) => updateScenes([ ...scenes, ...ids ]) }
+                      />
+
+                      <CreateAssetModal
+                        show={ createAsset !== undefined }
+                        onClose={ () => setCreateAsset( undefined ) }
+                        defaultCategory={ createAsset }
+                        onCreate={ ( asset ) => {
+                          setAssets( prev => [ ...prev, asset ])
+                          setActiveAsset( asset.id )
+                        }}
                       />
 
 

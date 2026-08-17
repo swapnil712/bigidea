@@ -4,7 +4,7 @@ import { SectionHeader } from "@/components/local/SectionHeader";
 import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineCheckroom, MdOutlineInventory2, MdPersonOutline } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { CharacterProps, CharacterWardrobeItem, PropProps, ReferenceImage } from "@/types/project";
+import { CharacterProps, CharacterRole, CharacterWardrobeItem, PropProps, ReferenceImage } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
@@ -15,6 +15,9 @@ import { PickerGroup } from "@/components/local/MultiPicker";
 import AddToListModal from "@/components/local/AddToListModal";
 import ReferenceImages from "@/components/local/ReferenceImages";
 import SceneCastRow from "../_components/SceneCastRow";
+import CreatePropModal from "../_components/CreatePropModal";
+import CreateWardrobeModal from "../_components/CreateWardrobeModal";
+import CreateCharacterModal from "../_components/CreateCharacterModal";
 
 interface CharacterKit {
   wardrobe: string[];
@@ -27,13 +30,24 @@ const firstName = ( name?: string ) => name?.trim().split(" ")[0] ?? "This chara
 export default function Home() {
 
   const [activeChar, setActiveChar] = useState<string | undefined>(undefined)
+
   const [showAddWardrobe, setShowAddWardrobe] = useState(false)
   const [showAddProp, setShowAddProp] = useState(false)
+
+  // The picker's selection, plus the "create one instead" modal stacked on top
+  // of it and the name it was seeded with.
+  const [wardrobePicks, setWardrobePicks] = useState<string[]>([])
+  const [propPicks, setPropPicks] = useState<string[]>([])
+  const [createWardrobe, setCreateWardrobe] = useState<string | undefined>(undefined)
+  const [createProp, setCreateProp] = useState<string | undefined>(undefined)
+  // Set to the role of whichever sidebar group's "+" was pressed.
+  const [createCharacter, setCreateCharacter] = useState<CharacterRole | undefined>(undefined)
 
   // Edits live here until there is somewhere to save them — keyed by character
   // id so switching characters keeps whatever was added to each one.
   const [kitEdits, setKitEdits] = useState<Record<string, CharacterKit>>({})
   const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
+  const [characters, setCharacters] = useState<CharacterProps[]>([])
   const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
   const [propCatalogue, setPropCatalogue] = useState<PropProps[]>([])
 
@@ -46,11 +60,12 @@ export default function Home() {
   }, [ project ])
 
   useEffect(() => {
+    setCharacters( project.characters ?? [] )
     setWardrobe( project.wardrobe ?? [] )
     setPropCatalogue( project.props ?? [] )
   }, [ project ])
 
-  const currentChar = project.characters?.find( ix => ix.id === activeChar)
+  const currentChar = characters.find( ix => ix.id === activeChar)
 
   const kit: CharacterKit = ( activeChar ? kitEdits[ activeChar ] : undefined ) ?? {
     wardrobe: currentChar?.wardrobe ?? [],
@@ -89,29 +104,14 @@ export default function Home() {
     ]
   }
 
-  const createWardrobe = ( name: string ) => {
-    if ( !activeChar ) return undefined
-    const item: CharacterWardrobeItem = {
-      id: `wrd-${ Date.now() }`,
-      name: name || "New Wardrobe Item",
-      originCharacter: activeChar,
-      description: "",
-      category: "everyday"
-    }
-    setWardrobe( prev => [ ...prev, item ])
-    return item.id
+  const openAddWardrobe = () => {
+    setWardrobePicks([])
+    setShowAddWardrobe( true )
   }
 
-  const createProp = ( name: string ) => {
-    if ( !activeChar ) return undefined
-    const item: PropProps = {
-      id: `prp-${ Date.now() }`,
-      name: name || "New Prop",
-      look: "Default look",
-      originCharacter: activeChar
-    }
-    setPropCatalogue( prev => [ ...prev, item ])
-    return item.id
+  const openAddProp = () => {
+    setPropPicks([])
+    setShowAddProp( true )
   }
 
 
@@ -133,12 +133,12 @@ export default function Home() {
 
     <aside className="min-w-1/5 flex p-2 flex-col  sticky top-0">
       {Object.entries(
-        (project.characters ?? []).reduce<Record<string, CharacterProps[]>>((groups, character) => {
+        characters.reduce<Record<string, CharacterProps[]>>((groups, character) => {
           groups[character.role] = groups[character.role] || [];
           groups[character.role].push(character);
           return groups;
         }, {})
-      ).map(([characterRole, characters]) => (
+      ).map(([characterRole, roleCharacters]) => (
 
         <div key={characterRole} className="flex flex-col">
 
@@ -146,11 +146,16 @@ export default function Home() {
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
             <span>{ characterRoleOptions.find ( ix => ix.id === characterRole )?.label }</span>
             <div className="border-color border-t grow" />
-            <Button icon={ MdAdd } size="Small" type="Tertiary" />
+            <Button
+              icon={ MdAdd }
+              size="Small"
+              type="Tertiary"
+              onClick={ () => setCreateCharacter( characterRole as CharacterRole ) }
+            />
           </div>
 
 
-          {characters.map((item) => (
+          {roleCharacters.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -240,7 +245,7 @@ export default function Home() {
                           size="Small"
                           icon={ MdAdd }
                           label="Add wardrobe"
-                          onClick={ () => setShowAddWardrobe( true ) }
+                          onClick={ openAddWardrobe }
                         />
                       </section>
 
@@ -265,7 +270,7 @@ export default function Home() {
                           size="Small"
                           icon={ MdAdd }
                           label="Add props"
-                          onClick={ () => setShowAddProp( true ) }
+                          onClick={ openAddProp }
                         />
                       </section>
 
@@ -294,8 +299,10 @@ export default function Home() {
                         searchPlaceholder="Search wardrobe"
                         emptyLabel="No wardrobe selected"
                         groups={ groups( wardrobe, kit.wardrobe, "Wardrobe", "Add New Wardrobe" ) }
+                        selected={ wardrobePicks }
+                        onSelectedChange={ setWardrobePicks }
                         onAdd={ ( ids ) => updateKit({ wardrobe: [ ...kit.wardrobe, ...ids ] }) }
-                        onCreate={ createWardrobe }
+                        onRequestCreate={ ( name ) => setCreateWardrobe( name ) }
                       />
 
                       <AddToListModal
@@ -311,8 +318,45 @@ export default function Home() {
                         searchPlaceholder="Search props"
                         emptyLabel="No props selected"
                         groups={ groups( propCatalogue, kit.props, "Props", "Add New Prop" ) }
+                        selected={ propPicks }
+                        onSelectedChange={ setPropPicks }
                         onAdd={ ( ids ) => updateKit({ props: [ ...kit.props, ...ids ] }) }
-                        onCreate={ createProp }
+                        onRequestCreate={ ( name ) => setCreateProp( name ) }
+                      />
+
+
+                      <CreateWardrobeModal
+                        show={ createWardrobe !== undefined }
+                        onClose={ () => setCreateWardrobe( undefined ) }
+                        initialName={ createWardrobe }
+                        characters={ characters }
+                        defaultCharacter={ activeChar }
+                        onCreate={ ( item ) => {
+                          setWardrobe( prev => [ ...prev, item ])
+                          setWardrobePicks( prev => [ ...prev, item.id ])
+                        }}
+                      />
+
+                      <CreatePropModal
+                        show={ createProp !== undefined }
+                        onClose={ () => setCreateProp( undefined ) }
+                        initialName={ createProp }
+                        characters={ characters }
+                        defaultCharacter={ activeChar }
+                        onCreate={ ( item ) => {
+                          setPropCatalogue( prev => [ ...prev, item ])
+                          setPropPicks( prev => [ ...prev, item.id ])
+                        }}
+                      />
+
+                      <CreateCharacterModal
+                        show={ createCharacter !== undefined }
+                        onClose={ () => setCreateCharacter( undefined ) }
+                        defaultRole={ createCharacter }
+                        onCreate={ ( character ) => {
+                          setCharacters( prev => [ ...prev, character ])
+                          setActiveChar( character.id )
+                        }}
                       />
 
 

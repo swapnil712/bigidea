@@ -4,7 +4,7 @@ import { SectionHeader } from "@/components/local/SectionHeader";
 import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineRoom, MdOutlineViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { ReferenceImage } from "@/types/project";
+import { LocationProps, ReferenceImage } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
@@ -13,16 +13,19 @@ import { sceneLabel } from "@/functions/sceneLabel";
 import ReferenceImages from "@/components/local/ReferenceImages";
 import AddSceneModal from "../_components/AddSceneModal";
 import SceneCastRow from "../_components/SceneCastRow";
+import CreateLocationModal from "../_components/CreateLocationModal";
 
 export default function Home() {
 
   const [activeLocation, setActiveLocation] = useState<string | undefined>(undefined)
   const [showAddScene, setShowAddScene] = useState(false)
+  const [showCreateLocation, setShowCreateLocation] = useState(false)
 
   // Edits live here until there is somewhere to save them — keyed by location id
   // so switching locations keeps whatever was added to each one.
   const [sceneEdits, setSceneEdits] = useState<Record<string, string[]>>({})
   const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
+  const [locations, setLocations] = useState<LocationProps[]>([])
 
   const project = useProject()
 
@@ -32,7 +35,11 @@ export default function Home() {
       }
   }, [ project ])
 
-  const currentLocation = project.locations?.find( ix => ix.id === activeLocation)
+  useEffect(() => {
+    setLocations( project.locations ?? [] )
+  }, [ project ])
+
+  const currentLocation = locations.find( ix => ix.id === activeLocation)
 
   // A scene already names its location, so the list starts from that link
   // rather than a second one stored on the location.
@@ -68,11 +75,16 @@ export default function Home() {
       <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
         <span>All Locations</span>
         <div className="border-color border-t grow" />
-        <Button icon={ MdAdd } size="Small" type="Tertiary" />
+        <Button
+          icon={ MdAdd }
+          size="Small"
+          type="Tertiary"
+          onClick={ () => setShowCreateLocation( true ) }
+        />
       </div>
 
 
-      {(project.locations ?? []).map((item) => (
+      {locations.map((item) => (
         <button
           key={item.id}
           type="button"
@@ -126,7 +138,7 @@ export default function Home() {
                           return <SceneCastRow
                             key={ sceneId }
                             icon={ MdOutlineViewAgenda }
-                            title={ scene ? sceneLabel( scene, project.locations ) : sceneId }
+                            title={ scene ? sceneLabel( scene, locations ) : sceneId }
                             subtitle={ scene && `Script Day ${ scene.scriptDay }` }
                             onRemove={ () => updateScenes( scenes.filter( ix => ix !== sceneId )) }
                           />
@@ -158,8 +170,17 @@ export default function Home() {
                         onClose={ () => setShowAddScene( false ) }
                         title="Add Location to Scenes"
                         scenes={ ( project.scenes ?? [] ).filter( ix => !scenes.includes( ix.id )) }
-                        locations={ project.locations }
+                        locations={ locations }
                         onAdd={ ( ids ) => updateScenes([ ...scenes, ...ids ]) }
+                      />
+
+                      <CreateLocationModal
+                        show={ showCreateLocation }
+                        onClose={ () => setShowCreateLocation( false ) }
+                        onCreate={ ( location ) => {
+                          setLocations( prev => [ ...prev, location ])
+                          setActiveLocation( location.id )
+                        }}
                       />
 
 

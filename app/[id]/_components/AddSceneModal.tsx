@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react";
 import { MdOutlineViewAgenda } from "react-icons/md";
 import AddToListModal from "@/components/local/AddToListModal";
 import { PickerGroup } from "@/components/local/MultiPicker";
@@ -23,6 +24,12 @@ export default function AddSceneModal({
   locations,
   onAdd,
 }: AddSceneModalProps) {
+
+  const [selected, setSelected] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (show) setSelected([]);
+  }, [show]);
 
   // One group per script day, in day order.
   const groups: PickerGroup[] = Object.entries(
@@ -49,6 +56,8 @@ export default function AddSceneModal({
       searchPlaceholder="Search scenes"
       emptyLabel="No scenes selected"
       groups={groups}
+      selected={selected}
+      onSelectedChange={setSelected}
       onAdd={onAdd}
     />
   );

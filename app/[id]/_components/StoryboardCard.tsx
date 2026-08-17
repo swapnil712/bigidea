@@ -1,6 +1,6 @@
 "use client"
 
-import { MdAutoAwesome, MdOutlineImage } from "react-icons/md";
+import { MdAutoAwesome } from "react-icons/md";
 import { Button } from "@/components/design-system/Button";
 import { Capsule } from "@/components/design-system/Capsule";
 import { Input } from "@/components/design-system/Input";
