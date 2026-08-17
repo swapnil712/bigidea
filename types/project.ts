@@ -66,6 +66,7 @@ export interface CharacterWardrobeItem {
   name: string;
   originCharacter: string;
   category: WardrobeCategories;
+  scenes?: SceneProps["id"][];
   referenceImages?: string[];
   description: string;
 }
@@ -78,6 +79,7 @@ export interface AssetProps {
   originScene?: SceneProps["id"];
   quantity: number;
   productionNotes: string;
+  scenes?: SceneProps["id"][];
   referenceImages?: string[];
 }
 
@@ -92,6 +94,12 @@ export interface LocationProps {
 
 export interface CharacterReferenceImage {
   id: string;
+  url: string;
+}
+
+export interface ReferenceImage {
+  id: string;
+  name: string;
   url: string;
 }
 

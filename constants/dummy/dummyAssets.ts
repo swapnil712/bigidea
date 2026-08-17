@@ -3,6 +3,7 @@ import { AssetProps } from "@/types/project";
 export const dummyAssets: AssetProps[] = [
   {
     id: "ast-1",
+    scenes: ["scene-1", "scene-9", "scene-10"],
     name: "Autonomous Camera Drone",
     category: "tech",
     description:
@@ -15,6 +16,7 @@ export const dummyAssets: AssetProps[] = [
   },
   {
     id: "ast-2",
+    scenes: ["scene-1", "scene-2"],
     name: "Drone SD Card",
     category: "prop",
     description:
@@ -27,6 +29,7 @@ export const dummyAssets: AssetProps[] = [
   },
   {
     id: "ast-3",
+    scenes: ["scene-1"],
     name: "Sam's Paddleboard",
     category: "vehicle",
     description:
@@ -39,6 +42,7 @@ export const dummyAssets: AssetProps[] = [
   },
   {
     id: "ast-4",
+    scenes: ["scene-2", "scene-10"],
     name: "Cracked Phone",
     category: "tech",
     description:
@@ -75,6 +79,7 @@ export const dummyAssets: AssetProps[] = [
   },
   {
     id: "ast-7",
+    scenes: ["scene-6", "scene-8"],
     name: "Company Rigid Inflatable",
     category: "vehicle",
     description:
@@ -111,6 +116,7 @@ export const dummyAssets: AssetProps[] = [
   },
   {
     id: "ast-10",
+    scenes: ["scene-1", "scene-9"],
     name: "The Creature",
     category: "animal",
     description:

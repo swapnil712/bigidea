@@ -1,17 +1,29 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineRoom } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineRoom, MdOutlineViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
+import { ReferenceImage } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
 import EmptyState from "@/components/local/EmptyState";
+import { sceneLabel } from "@/functions/sceneLabel";
+import ReferenceImages from "@/components/local/ReferenceImages";
+import AddSceneModal from "../_components/AddSceneModal";
+import SceneCastRow from "../_components/SceneCastRow";
 
 export default function Home() {
 
   const [activeLocation, setActiveLocation] = useState<string | undefined>(undefined)
+  const [showAddScene, setShowAddScene] = useState(false)
+
+  // Edits live here until there is somewhere to save them — keyed by location id
+  // so switching locations keeps whatever was added to each one.
+  const [sceneEdits, setSceneEdits] = useState<Record<string, string[]>>({})
+  const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
+
   const project = useProject()
 
   useEffect(( ) => {
@@ -21,6 +33,16 @@ export default function Home() {
   }, [ project ])
 
   const currentLocation = project.locations?.find( ix => ix.id === activeLocation)
+
+  // A scene already names its location, so the list starts from that link
+  // rather than a second one stored on the location.
+  const scenes = ( activeLocation ? sceneEdits[ activeLocation ] : undefined )
+    ?? ( project.scenes ?? [] ).filter( ix => ix.location === activeLocation ).map( ix => ix.id )
+
+  const updateScenes = ( next: string[] ) => {
+    if ( !activeLocation ) return
+    setSceneEdits( prev => ({ ...prev, [ activeLocation ]: next }))
+  }
 
 
 
@@ -95,16 +117,50 @@ export default function Home() {
 
 
 
-                      <section>
+                      <section className="flex flex-col gap-2">
                         <h3 className="panel-heading">Scenes</h3>
-                        <Button type="Inline" size="Small" icon={ MdAdd } label="Add location to a scene" />
+
+                        { scenes.map(( sceneId ) => {
+                          const scene = project.scenes?.find( ix => ix.id === sceneId )
+
+                          return <SceneCastRow
+                            key={ sceneId }
+                            icon={ MdOutlineViewAgenda }
+                            title={ scene ? sceneLabel( scene, project.locations ) : sceneId }
+                            subtitle={ scene && `Script Day ${ scene.scriptDay }` }
+                            onRemove={ () => updateScenes( scenes.filter( ix => ix !== sceneId )) }
+                          />
+                        })}
+
+                        <Button
+                          type="Inline"
+                          size="Small"
+                          icon={ MdAdd }
+                          label="Add location to a scene"
+                          onClick={ () => setShowAddScene( true ) }
+                        />
                       </section>
 
 
-                      <section>
+                      <section className="flex flex-col gap-2">
                         <h3 className="panel-heading">Reference Images</h3>
-                        <Button type="Inline" size="Small" icon={ MdAdd } label="Add reference Images" />
+
+                        <ReferenceImages
+                          id="locationReferenceImages"
+                          images={ activeLocation ? images[ activeLocation ] ?? [] : [] }
+                          onChange={ ( next ) => activeLocation && setImages( prev => ({ ...prev, [ activeLocation ]: next })) }
+                        />
                       </section>
+
+
+                      <AddSceneModal
+                        show={ showAddScene }
+                        onClose={ () => setShowAddScene( false ) }
+                        title="Add Location to Scenes"
+                        scenes={ ( project.scenes ?? [] ).filter( ix => !scenes.includes( ix.id )) }
+                        locations={ project.locations }
+                        onAdd={ ( ids ) => updateScenes([ ...scenes, ...ids ]) }
+                      />
 
 
 

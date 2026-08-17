@@ -10,6 +10,7 @@ export const dummyWardrobes : CharacterWardrobeItem[] = [
     },
     {
         id: "wrd-4931",
+        scenes: ["scene-1", "scene-9"],
         name: "Reef Wetsuit",
         originCharacter: "char-1",
         description:
@@ -26,6 +27,7 @@ export const dummyWardrobes : CharacterWardrobeItem[] = [
     },
     {
         id: "wrd-4933",
+        scenes: ["scene-1"],
         name: "Cowboy Boots",
         originCharacter: "char-1",
         description:
@@ -34,6 +36,7 @@ export const dummyWardrobes : CharacterWardrobeItem[] = [
     },
     {
         id: "wrd-4934",
+        scenes: ["scene-2", "scene-6"],
         name: "Mangrove Chase Layers",
         originCharacter: "char-1",
         description:
@@ -42,6 +45,7 @@ export const dummyWardrobes : CharacterWardrobeItem[] = [
     },
     {
         id: "wrd-4935",
+        scenes: ["scene-7"],
         name: "Dive Rash Guard",
         originCharacter: "char-2",
         description:
@@ -90,6 +94,7 @@ export const dummyWardrobes : CharacterWardrobeItem[] = [
     },
     {
         id: "wrd-4941",
+        scenes: ["scene-5", "scene-8"],
         name: "Charcoal Suit",
         originCharacter: "char-4",
         description:

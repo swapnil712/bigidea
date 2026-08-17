@@ -1,20 +1,42 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdDelete, MdDragHandle, MdOutlineViewAgenda, MdPersonOutline, MdUnfoldMore } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineCheckroom, MdOutlineInventory2, MdPersonOutline } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { CharacterProps, SceneProps } from "@/types/project";
+import { CharacterProps, CharacterWardrobeItem, PropProps, ReferenceImage } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
-import { Tab } from "@/components/design-system/Tab";
 import { Input } from "@/components/design-system/Input";
-import { ageRangeOptions, characterRoleOptions, genderOptions, intExtOptions, sceneSourceOptions, timeOfDayOptions } from "@/constants/plot";
+import { ageRangeOptions, characterRoleOptions, genderOptions, wardrobeCategoryOptions } from "@/constants/plot";
 import EmptyState from "@/components/local/EmptyState";
+import { toOptions } from "@/functions/toOptions";
+import { PickerGroup } from "@/components/local/MultiPicker";
+import AddToListModal from "@/components/local/AddToListModal";
+import ReferenceImages from "@/components/local/ReferenceImages";
+import SceneCastRow from "../_components/SceneCastRow";
+
+interface CharacterKit {
+  wardrobe: string[];
+  props: string[];
+}
+
+// "Sarah \"Booker\" Petree" -> "Sarah", so the picker can say "Sarah's Wardrobe".
+const firstName = ( name?: string ) => name?.trim().split(" ")[0] ?? "This character"
 
 export default function Home() {
 
   const [activeChar, setActiveChar] = useState<string | undefined>(undefined)
+  const [showAddWardrobe, setShowAddWardrobe] = useState(false)
+  const [showAddProp, setShowAddProp] = useState(false)
+
+  // Edits live here until there is somewhere to save them — keyed by character
+  // id so switching characters keeps whatever was added to each one.
+  const [kitEdits, setKitEdits] = useState<Record<string, CharacterKit>>({})
+  const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
+  const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
+  const [propCatalogue, setPropCatalogue] = useState<PropProps[]>([])
+
   const project = useProject()
 
   useEffect(( ) => {
@@ -23,14 +45,79 @@ export default function Home() {
       }
   }, [ project ])
 
+  useEffect(() => {
+    setWardrobe( project.wardrobe ?? [] )
+    setPropCatalogue( project.props ?? [] )
+  }, [ project ])
+
   const currentChar = project.characters?.find( ix => ix.id === activeChar)
 
+  const kit: CharacterKit = ( activeChar ? kitEdits[ activeChar ] : undefined ) ?? {
+    wardrobe: currentChar?.wardrobe ?? [],
+    props: currentChar?.props ?? []
+  }
 
+  const updateKit = ( next: Partial<CharacterKit> ) => {
+    if ( !activeChar ) return
+    setKitEdits( prev => ({ ...prev, [ activeChar ]: { ...kit, ...next } }))
+  }
+
+  const owner = firstName( currentChar?.name )
+
+  // Everything the character already has is off the menu; what's left splits
+  // into their own items and everyone else's.
+  const groups = <T extends { id: string; name: string; originCharacter?: string }>(
+    items: T[],
+    taken: string[],
+    noun: string,
+    addNewLabel: string
+  ): PickerGroup[] => {
+    const available = items.filter(( ix ) => !taken.includes( ix.id ))
+
+    return [
+      {
+        id: "own",
+        label: `${ owner }'s ${ noun }`,
+        options: toOptions( available.filter(( ix ) => ix.originCharacter === activeChar )),
+        addNewLabel
+      },
+      {
+        id: "other",
+        label: `Everyone Else's ${ noun }`,
+        options: toOptions( available.filter(( ix ) => ix.originCharacter !== activeChar ))
+      }
+    ]
+  }
+
+  const createWardrobe = ( name: string ) => {
+    if ( !activeChar ) return undefined
+    const item: CharacterWardrobeItem = {
+      id: `wrd-${ Date.now() }`,
+      name: name || "New Wardrobe Item",
+      originCharacter: activeChar,
+      description: "",
+      category: "everyday"
+    }
+    setWardrobe( prev => [ ...prev, item ])
+    return item.id
+  }
+
+  const createProp = ( name: string ) => {
+    if ( !activeChar ) return undefined
+    const item: PropProps = {
+      id: `prp-${ Date.now() }`,
+      name: name || "New Prop",
+      look: "Default look",
+      originCharacter: activeChar
+    }
+    setPropCatalogue( prev => [ ...prev, item ])
+    return item.id
+  }
 
 
   if (!project.characters) {
     return <div className={ baseStyle.mainWrapper }>
-      <EmptyState 
+      <EmptyState
       icon={ MdPersonOutline }
       title="There are no characters"
       subtitle="They will show up here  once they're generated."
@@ -39,10 +126,10 @@ export default function Home() {
     </div>
   }
 
-  
+
 
   return (<div className={ baseStyle.mainWrapper  }>
-          
+
 
     <aside className="min-w-1/5 flex p-2 flex-col  sticky top-0">
       {Object.entries(
@@ -68,7 +155,7 @@ export default function Home() {
               key={item.id}
               type="button"
               onClick={ () => setActiveChar( item.id) }
-              className={`${baseStyle.inlineRow} ${ item.id === activeChar ? "bg-zinc-900 font-bold text-indigo-400" : "" } 
+              className={`${baseStyle.inlineRow} ${ item.id === activeChar ? "bg-zinc-900 font-bold text-indigo-400" : "" }
                   cursor-pointer text-sm uppercase text-left p-2 rounded-lg hover:bg-zinc-700`}
             >
               <MdPersonOutline />
@@ -128,26 +215,105 @@ export default function Home() {
 
                       <Input type="text" id="ethnicity" label="Ethnicity" value={ currentChar?.ethnicity }  />
 
-                      
+
                       <Input type="textarea" id="description" label="Description" value={ currentChar?.description } />
 
-                   
-                      
-                      <section>
+
+
+                      <section className="flex flex-col gap-2">
                         <h3 className="panel-heading">Wardrobe</h3>
-                        <Button type="Inline" size="Small" icon={ MdAdd } label="Add wardrobe" />
+
+                        { kit.wardrobe.map(( itemId ) => {
+                          const item = wardrobe.find( ix => ix.id === itemId )
+
+                          return <SceneCastRow
+                            key={ itemId }
+                            icon={ MdOutlineCheckroom }
+                            title={ item?.name ?? itemId }
+                            subtitle={ wardrobeCategoryOptions.find( ix => ix.id === item?.category )?.label }
+                            onRemove={ () => updateKit({ wardrobe: kit.wardrobe.filter( ix => ix !== itemId ) }) }
+                          />
+                        })}
+
+                        <Button
+                          type="Inline"
+                          size="Small"
+                          icon={ MdAdd }
+                          label="Add wardrobe"
+                          onClick={ () => setShowAddWardrobe( true ) }
+                        />
                       </section>
 
 
-                      <section>
+                      <section className="flex flex-col gap-2">
                         <h3 className="panel-heading">Props</h3>
-                        <Button type="Inline" size="Small" icon={ MdAdd } label="Add props to scene" />
+
+                        { kit.props.map(( itemId ) => {
+                          const item = propCatalogue.find( ix => ix.id === itemId )
+
+                          return <SceneCastRow
+                            key={ itemId }
+                            icon={ MdOutlineInventory2 }
+                            title={ item?.name ?? itemId }
+                            subtitle={ item?.look }
+                            onRemove={ () => updateKit({ props: kit.props.filter( ix => ix !== itemId ) }) }
+                          />
+                        })}
+
+                        <Button
+                          type="Inline"
+                          size="Small"
+                          icon={ MdAdd }
+                          label="Add props"
+                          onClick={ () => setShowAddProp( true ) }
+                        />
                       </section>
 
-                      <section>
+
+                      <section className="flex flex-col gap-2">
                         <h3 className="panel-heading">Reference Images</h3>
-                        <Button type="Inline" size="Small" icon={ MdAdd } label="Add reference Images" />
+
+                        <ReferenceImages
+                          id="characterReferenceImages"
+                          images={ activeChar ? images[ activeChar ] ?? [] : [] }
+                          onChange={ ( next ) => activeChar && setImages( prev => ({ ...prev, [ activeChar ]: next })) }
+                        />
                       </section>
+
+
+                      <AddToListModal
+                        show={ showAddWardrobe }
+                        onClose={ () => setShowAddWardrobe( false ) }
+                        id="characterWardrobe"
+                        title="Add Wardrobe to Character"
+                        icon={ MdOutlineCheckroom }
+                        confirmLabel="Add Wardrobe"
+                        label="Wardrobe"
+                        tone="Violet"
+                        capsuleIcon={ MdOutlineCheckroom }
+                        searchPlaceholder="Search wardrobe"
+                        emptyLabel="No wardrobe selected"
+                        groups={ groups( wardrobe, kit.wardrobe, "Wardrobe", "Add New Wardrobe" ) }
+                        onAdd={ ( ids ) => updateKit({ wardrobe: [ ...kit.wardrobe, ...ids ] }) }
+                        onCreate={ createWardrobe }
+                      />
+
+                      <AddToListModal
+                        show={ showAddProp }
+                        onClose={ () => setShowAddProp( false ) }
+                        id="characterProps"
+                        title="Add Props to Character"
+                        icon={ MdOutlineInventory2 }
+                        confirmLabel="Add Props"
+                        label="Props"
+                        tone="Amber"
+                        capsuleIcon={ MdOutlineInventory2 }
+                        searchPlaceholder="Search props"
+                        emptyLabel="No props selected"
+                        groups={ groups( propCatalogue, kit.props, "Props", "Add New Prop" ) }
+                        onAdd={ ( ids ) => updateKit({ props: [ ...kit.props, ...ids ] }) }
+                        onCreate={ createProp }
+                      />
 
 
 
