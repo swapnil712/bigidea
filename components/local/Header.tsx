@@ -2,8 +2,9 @@
 import { baseStyle } from "@/constants/styles";
 import { Button, ButtonProps } from "../design-system/Button";
 import { Avatar } from "../design-system/Avatar";
-import { MdAdd, MdArrowBack, MdIosShare, MdOpenInFull, MdOutlineHome, MdOutlineSettings, MdSettings } from "react-icons/md";
+import { MdAdd, MdArrowBack, MdIosShare, MdOpenInFull, MdOutlineHome, MdOutlineSettings, MdOutlineWeb, MdSettings } from "react-icons/md";
 import { ProjectProps } from "@/types/project";
+import { usePanel } from "@/app/[id]/panel-context";
 
 
 type NavVariant = "Base" | "Inside";
@@ -34,7 +35,8 @@ export const HeaderContent = ({
             type={btn.type}
             label={btn.label}
             icon={btn.icon}
-            href="/"
+            href={ btn.href }
+            onClick={ btn.onClick }
           />
         ))}
       </div>
@@ -67,15 +69,16 @@ export const HeaderContent = ({
 interface HeaderProps {
   type: NavVariant;
   project?: ProjectProps;
-  // Base view only — lets the page send focus down to the prompter.
   onNewProject?: () => void;
 }
 
 export default function Header ( { type, project, onNewProject } : HeaderProps) {
 
+  const { showSideBar, toggleSideBar } = usePanel();
+
   return type === "Base" ? <HeaderContent
     variant="Base"
-    leftButtons={[{ icon: MdOutlineHome, type:"Tertiary", onClick: ()=>null }]}
+    leftButtons={[{ icon: MdOutlineHome, type: "Tertiary", onClick: ()=>null }]}
     projectName="BigIdea"
     rightButtons={[
       { icon: MdAdd, type: "Primary", label: "New Project", onClick: onNewProject },
@@ -86,11 +89,14 @@ export default function Header ( { type, project, onNewProject } : HeaderProps) 
   
   <HeaderContent 
     variant="Inside"
-    leftButtons={[{ icon: MdArrowBack, type:"Tertiary", onClick: ()=>null }]}
+    leftButtons={[
+      { icon: MdArrowBack, type:"Tertiary", href: "/" },
+      { icon: MdOutlineWeb, type: !showSideBar ? "Tertiary" : "Secondary", onClick: toggleSideBar }
+    ]}
     projectName={ project?.title || "Untitled Project" }
     rightButtons={[
       { icon: MdSettings, type: "Tertiary", onClick: () => null },
-      { icon: MdIosShare, type: "Secondary", label: "Render", onClick: () => null },
+      { icon: MdIosShare, type: "Primary", label: "Export", onClick: () => null },
       { icon: MdOpenInFull, type: "Tertiary", onClick: () => null }
     ]}
   />

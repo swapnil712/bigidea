@@ -5,6 +5,7 @@ import { Nav } from "@/components/local/Nav";
 import { baseStyle } from "@/constants/styles";
 import Header from "@/components/local/Header";
 import { ReactNode } from "react";
+import { PanelProvider } from "./[id]/panel-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,7 +19,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
+    <PanelProvider>
+
+      <html
       lang="en"
       className={`${geistSans.variable} h-full antialiased`}
     >
@@ -26,5 +29,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         { children }
       </body>
     </html>
+
+    
+    </PanelProvider>
   );
 }

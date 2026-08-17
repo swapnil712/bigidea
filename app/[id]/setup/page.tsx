@@ -38,7 +38,7 @@ export default function Home() {
 
 
           <aside className="min-w-1/4 flex flex-col">
-            <h3 className="panel-heading px-4!">Script Version</h3>
+            <h3 className="panel-heading px-4! border-t-0!">Script Version</h3>
 
 
             <form className={`gap-4 flex p-4 flex-col`}>

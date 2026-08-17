@@ -47,5 +47,25 @@ export const Button = ({
 
   const buttonStyle = { className: `flex justify-center flex-row items-center cursor-pointer ${ stretch ? "grow w-full" : "" } ${ typeClass } ${sizeStyles[getSize]}` }
 
-  return ( href ? <a href={ href } { ...buttonStyle }>{ buttonContent }</a> : <button onClick={ onClick } disabled={ disabled } { ...buttonStyle } type="button">{ buttonContent }</button> );
+
+      return href ? (
+        <a
+          {...(!disabled && { href })}
+          aria-disabled={disabled || undefined}
+          {...buttonStyle}
+          className={`${buttonStyle.className} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+        >
+          {buttonContent}
+        </a>
+      ) : (
+        <button
+          {...(onClick && { onClick })}
+          disabled={disabled}
+          {...buttonStyle}
+          type="button"
+        >
+          {buttonContent}
+        </button>
+      );
+
 };

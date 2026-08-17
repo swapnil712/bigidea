@@ -8,8 +8,10 @@ import Prompter from "./home/_components/Prompter";
 import { dummyProjects } from "@/constants/dummy/dummyProject";
 import Header from "@/components/local/Header";
 import { useState } from "react";
+import Modal from "@/components/local/Modal";
+import { MdMovie } from "react-icons/md";
 
-export const homeContainer = "max-w-3/5 mx-auto gap-4"
+export const homeContainer = "max-w-3/5 lg:max-w-4/5 mx-auto gap-4"
 
 export default function Home () {
 
@@ -19,7 +21,6 @@ export default function Home () {
   // next press of "New Project" fires the pop again.
   const newProject = () => {
     setFocusPrompter( true )
-    setTimeout( () => setFocusPrompter( false ), 400 )
   }
 
   return <div>
@@ -40,8 +41,9 @@ export default function Home () {
       { dummyProjects.map(( item, index) => <ProjectCard key={ index } item={ item } /> )}
     </div>
 
-    <div className="fixed bottom-0 w-full bg-zinc-900/50 backdrop-blur">
-        <Prompter isFocused={ focusPrompter } />
-    </div>
+    <Modal show={ focusPrompter } icon={ MdMovie } onClose={ () => setFocusPrompter( false ) } title="Start a new Project">
+      <Prompter />
+    </Modal>
+
   </div>
 }

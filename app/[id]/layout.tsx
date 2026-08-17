@@ -3,6 +3,7 @@ import { dummyProjects } from "@/constants/dummy/dummyProject";
 import { baseStyle } from "@/constants/styles";
 import { ReactNode } from "react";
 import { ProjectProvider } from "./project-context";
+import { PanelProvider } from "./panel-context";
 import Header from "@/components/local/Header";
 
 export default async function Layout ( { children, params } : { children : ReactNode, params: Promise<{ id: string }>}) {
@@ -13,13 +14,15 @@ export default async function Layout ( { children, params } : { children : React
     if( !project ) return <div>not found</div>
 
     return <ProjectProvider project={ project }>
+        <PanelProvider>
 
-        <Header type="Inside" project={ project } />
+            <Header type="Inside" project={ project } />
 
-        <div className={`${ baseStyle.inlineRow } px-3 items-start`}>
-            <Nav isCondensed={ false } project={ project } />
-            { children }
-        </div>
-        
+            <div className={`${ baseStyle.inlineRow } px-3 items-start`}>
+                <Nav project={ project } />
+                { children }
+            </div>
+
+        </PanelProvider>
     </ProjectProvider>
 }

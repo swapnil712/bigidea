@@ -113,7 +113,7 @@ export default function Home() {
                           />
                         ))}
 
-                        <div className="border border-dotted rounded-lg border-color flex gap-3 flex-col justify-center items-center">
+                        <div className="border border-dotted rounded-lg border-color min-h-100 flex gap-3 flex-col justify-center items-center">
                               <MdOutlineImage size={32} className="opacity-40" />
                             <Button label="Add a Frame" type="Inline" />
                         </div>

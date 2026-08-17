@@ -9,7 +9,7 @@ interface SectionHeaderProps {
 
 export const SectionHeader = ({ leftButton, label, rightButtons }: SectionHeaderProps) => {
   return (
-    <div className={`${ baseStyle.inlineRow } p-3 bg-zinc-800! grow border-b rounded-tr-lg border-color`}>
+    <div className={`${ baseStyle.inlineRow } rounded-tl-xl p-3 bg-zinc-800! grow border-b rounded-tr-lg border-color`}>
       { leftButton && <Button {...leftButton} /> }
       
       <p className="grow text-lg font-bold">{label}</p>

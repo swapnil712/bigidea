@@ -15,7 +15,7 @@ interface ModalProps {
     show: boolean,
     onClose: () => void,
     children: ReactNode,
-    buttons: ButtonProps[]
+    buttons?: ButtonProps[]
 }
 
 const sizeStyles: Record<ModalSize, string> = {
@@ -50,9 +50,9 @@ export default function Modal ( { title, icon, size, show, onClose, buttons, chi
                 { children }
             </div>
 
-            <div className="border-color border-t p-3 flex gap-3">
+            { buttons && <div className="border-color border-t p-3 flex gap-3">
                 { buttons.map(( item, index) => <Button {...item} key={ index } />)}
-            </div>
+            </div> }
         </div>
     </div>
 

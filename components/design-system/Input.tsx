@@ -60,7 +60,7 @@ export const Input = ({
 
   const wrapLines = size === "G" ? "text-md border-transparent hover:border-zinc-700 group-focus-within:border-zinc-500" : "border-color group-focus-within:border-zinc-400!"
 
-  const wrapperStyle = `${ wrapLines } ${ sizeStyles[isSize] } p-2 border-2 flex flex-row items-center rounded-md grow gap-2`;
+  const wrapperStyle = `${ wrapLines } ${ sizeStyles[isSize] } p-2 border-1 flex flex-row items-center rounded-sm text-md grow gap-1`;
   const preSuf = "opacity-60";
 
 
@@ -109,11 +109,11 @@ export const Input = ({
   }
 
   return (
-    <div className={`${baseStyle.inlineCol} group grow w-full`}>
+    <div className={`${baseStyle.inlineCol} group gap-1! grow w-full`}>
 
       {label && (
         <label htmlFor={ id } className={baseStyle.inlineRow}>
-          <span className="font-bold">{label}</span>
+          <span className="text-sm">{label}</span>
           {hint && <span className={ preSuf }>{hint}</span>}
         </label>
       )}
