@@ -44,8 +44,7 @@ export default function StoryboardCard({
     <div className="wrapper p-3 flex flex-col gap-3">
 
       <div className={`${aspectClass} box w-full rounded-lg border border-dashed border-color bg-zinc-900`}>
-        <MdOutlineImage size={32} className="opacity-40" />
-        <Button type="Secondary" size="Small" icon={MdAutoAwesome} label="Generate" onClick={onGenerate} />
+        <Button type="Tertiary" size="Small" icon={MdAutoAwesome} label="Generate" onClick={onGenerate} />
       </div>
 
       <div className={`${baseStyle.inlineRow} justify-between`}>

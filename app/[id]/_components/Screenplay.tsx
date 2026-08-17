@@ -1,4 +1,4 @@
-import { ScreenplayElement, ScreenplayElementType } from "@/constants/dummy/dummyScript";
+import { ScreenplayElement, ScreenplayElementType } from "@/types/project";
 
 const screenplayStyles: Record<ScreenplayElementType, string> = {
   slugline: "mt-4",

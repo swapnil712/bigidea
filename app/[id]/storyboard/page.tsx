@@ -1,7 +1,7 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdDragHandle, MdOutlineViewCarousel } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdDragHandle, MdOutlineImage, MdOutlineViewCarousel } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
 import { SceneProps } from "@/types/project";
@@ -69,6 +69,7 @@ export default function Home() {
         </div>
       ))}
 
+
     </aside>
 
 
@@ -98,6 +99,11 @@ export default function Home() {
                             onGenerate={ () => null }
                           />
                         ))}
+
+                        <div className="border border-dotted rounded-lg border-color flex gap-3 flex-col justify-center items-center">
+                              <MdOutlineImage size={32} className="opacity-40" />
+                            <Button label="Add a Frame" type="Inline" />
+                        </div>
 
                       </div> : <EmptyState
                         icon={ MdOutlineViewCarousel }
