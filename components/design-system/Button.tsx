@@ -9,6 +9,7 @@ export interface ButtonProps {
   type: ButtonType;
   size?: ButtonSize;
   label?: string;
+  disabled?: boolean,
   icon?: IconType;
   href?: string,
   stretch?: boolean,
@@ -33,6 +34,7 @@ export const Button = ({
   label,
   href,
   stretch,
+  disabled,
   onClick,
   icon: Icon,
 }: ButtonProps) => {
@@ -45,5 +47,5 @@ export const Button = ({
 
   const buttonStyle = { className: `flex justify-center flex-row items-center cursor-pointer ${ stretch ? "grow w-full" : "" } ${ typeClass } ${sizeStyles[getSize]}` }
 
-  return ( href ? <a href={ href } { ...buttonStyle }>{ buttonContent }</a> : <button onClick={ onClick } { ...buttonStyle } type="button">{ buttonContent }</button> );
+  return ( href ? <a href={ href } { ...buttonStyle }>{ buttonContent }</a> : <button onClick={ onClick } disabled={ disabled } { ...buttonStyle } type="button">{ buttonContent }</button> );
 };

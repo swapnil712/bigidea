@@ -64,14 +64,21 @@ export const HeaderContent = ({
 
 
 
-export default function Header ( { type, project } : { type : NavVariant, project?: ProjectProps }) {
+interface HeaderProps {
+  type: NavVariant;
+  project?: ProjectProps;
+  // Base view only — lets the page send focus down to the prompter.
+  onNewProject?: () => void;
+}
 
-  return type === "Base" ? <HeaderContent 
+export default function Header ( { type, project, onNewProject } : HeaderProps) {
+
+  return type === "Base" ? <HeaderContent
     variant="Base"
     leftButtons={[{ icon: MdOutlineHome, type:"Tertiary", onClick: ()=>null }]}
     projectName="BigIdea"
     rightButtons={[
-      { icon: MdAdd, type: "Primary", label: "New Project", onClick: () => null },
+      { icon: MdAdd, type: "Primary", label: "New Project", onClick: onNewProject },
       { icon: MdOutlineSettings, type: "Tertiary", onClick: () => null }
     ]}
     avatarInitial="LF"
