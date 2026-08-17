@@ -1,0 +1,332 @@
+"use client"
+
+import { SectionHeader } from "@/components/local/SectionHeader";
+import { MdAdd, MdAutoAwesome, MdCheck, MdDragHandle, MdOutlineViewAgenda, MdUnfoldMore } from "react-icons/md";
+import { useProject } from "../project-context";
+import { baseStyle } from "@/constants/styles";
+import { CharacterLookInSceneProps, CharacterWardrobeItem, PropProps, SceneProps } from "@/types/project";
+import { Button } from "@/components/design-system/Button";
+import { useEffect, useState } from "react";
+import { Tab } from "@/components/design-system/Tab";
+import { Input } from "@/components/design-system/Input";
+import { intExtOptions, sceneSourceOptions, shotOptions, timeOfDayOptions } from "@/constants/plot";
+import EmptyState from "@/components/local/EmptyState";
+import { toOptions } from "@/functions/toOptions";
+import { dummyLocations } from "@/constants/dummy/dummyLocations";
+import SceneCastRow from "../_components/SceneCastRow";
+import AddCharacterModal from "../_components/AddCharacterModal";
+import AddPropModal from "../_components/AddPropModal";
+
+interface SceneCast {
+  characters: CharacterLookInSceneProps[],
+  props: PropProps[]
+}
+
+export default function Home() {
+
+  const [activeScene, setActiveScene] = useState<string | undefined>(undefined)
+  const [activeTab, setActiveTab] = useState<string | undefined>( undefined )
+  const [showAddCharacter, setShowAddCharacter] = useState(false)
+  const [showAddProp, setShowAddProp] = useState(false)
+
+  // Edits live here until there is somewhere to save them — keyed by scene id
+  // so switching scenes keeps whatever was added to each one.
+  const [castEdits, setCastEdits] = useState<Record<string, SceneCast>>({})
+  const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
+  const [propCatalogue, setPropCatalogue] = useState<PropProps[]>([])
+
+  const project = useProject()
+
+  useEffect(( ) => {
+      if ( !activeScene ) {
+        setActiveScene(  project.scenes ? project.scenes[0].id : undefined )
+      }
+  }, [ project ])
+
+  useEffect(() => {
+    setWardrobe( project.wardrobe ?? [] )
+    setPropCatalogue( project.props ?? [] )
+  }, [ project ])
+
+  useEffect(() => {
+    setActiveTab("plan")
+  }, [])
+
+  const currentScene = project.scenes?.find( ix => ix.id === activeScene)
+
+  const locationName = ( id: string ) => project.locations?.find( ix => ix.id === id )?.name ?? id
+
+  const cast: SceneCast = ( activeScene ? castEdits[ activeScene ] : undefined ) ?? {
+    characters: currentScene?.characters ?? [],
+    props: currentScene?.props ?? []
+  }
+
+  const updateCast = ( next: Partial<SceneCast> ) => {
+    if ( !activeScene ) return
+    setCastEdits( prev => ({ ...prev, [ activeScene ]: { ...cast, ...next } }))
+  }
+
+  const wardrobeName = ( id: string ) => wardrobe.find( ix => ix.id === id )?.name ?? id
+  const propName = ( id: string ) => propCatalogue.find( ix => ix.id === id )?.name ?? id
+
+  const createWardrobe = ( name: string, characterId: string ): CharacterWardrobeItem => {
+    const item: CharacterWardrobeItem = {
+      id: `wrd-${ Date.now() }`,
+      name,
+      originCharacter: characterId,
+      description: "",
+      category: "everyday"
+    }
+    setWardrobe( prev => [ ...prev, item ])
+    return item
+  }
+
+  const createProp = ( name: string, characterId?: string ): PropProps => {
+    const item: PropProps = {
+      id: `prp-${ Date.now() }`,
+      name,
+      look: "Default look",
+      originCharacter: characterId
+    }
+    setPropCatalogue( prev => [ ...prev, item ])
+    return item
+  }
+
+  const addProps = ( ids: string[] ) => updateCast({
+    props: [
+      ...cast.props,
+      ...propCatalogue.filter( ix => ids.includes( ix.id ) && !cast.props.some( existing => existing.id === ix.id ))
+    ]
+  })
+
+  return (<div className={`wrapper grow items-start flex-row flex`}>
+          
+
+    <aside className="min-w-1/5 flex p-2 flex-col sticky top-0">
+      {Object.entries(
+        (project.scenes ?? []).reduce<Record<number, SceneProps[]>>((groups, scene) => {
+          groups[scene.scriptDay] = groups[scene.scriptDay] || [];
+          groups[scene.scriptDay].push(scene);
+          return groups;
+        }, {})
+      ).map(([scriptDay, scenes]) => (
+
+        <div key={scriptDay} className="flex flex-col">
+
+
+          <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
+            <span>Script Day {scriptDay}</span>
+            <div className="border-color border-t grow" />
+            <Button icon={ MdAdd } size="Small" type="Tertiary" />
+          </div>
+
+
+          {scenes.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={ () => setActiveScene( item.id) }
+              className={`${baseStyle.inlineRow} ${ item.id === activeScene ? "bg-zinc-900 font-bold text-indigo-400" : "" } 
+                  cursor-pointer text-sm uppercase text-left p-2 rounded-lg hover:bg-zinc-700`}
+            >
+              <MdDragHandle />
+              {item.intExt}. { dummyLocations.find ( ix => ix.id === item.location )?.name } - {item.time}
+            </button>
+          ))}
+        </div>
+      ))}
+
+      <div className="mt-4">
+        <Button type="Inline" size="Small" icon={ MdAutoAwesome} label="Auto-suggest Script Days" />
+      </div>
+
+    </aside>
+
+
+          <div className="grow border-s bg-zinc-900  border-color">
+            <SectionHeader
+               label={ currentScene ? `${ intExtOptions.find ( ix => ix.id === currentScene.intExt)?.label }. 
+                  ${ locationName( currentScene.location ) } - 
+                  ${ timeOfDayOptions.find ( ix => ix.id === currentScene.time )?.label }` : "Storyboard" }
+              rightButtons={[
+                { icon: MdOutlineViewAgenda, label: "Group by Script Day", type: "Tertiary", onClick: () => null },
+                { icon: MdUnfoldMore, label: "Order by Scene Number", type: "Tertiary", onClick: () => null }
+              ]}
+            />
+
+
+                    <div className="p-5 gap-5 flex flex-col max-w-200 mx-auto">
+                      <Tab
+                          active={ activeTab }
+                          type="Flat"
+                          onClick={ setActiveTab }
+                          menu={[
+                            {
+                              label: "Planning View",
+                              id: "plan"
+                            },
+                            {
+                              label: "Shot Breakdown",
+                              id: "shot"
+                            }
+                          ]}
+                      />
+
+                     
+
+                     { activeTab === "plan" && <div className="flex flex-col gap-5">
+
+                       <div className={ baseStyle.inlineRow }>
+                        <Input type="select" id="intExt" label="INT/EXT" value={ currentScene?.intExt } options={intExtOptions} />
+                        <Input type="select" id="location" label="Location" value={ currentScene?.location } options={ toOptions( project.locations, "name", "name" ) } />
+                        <Input type="select" id="time" label="Time of Day" value={ currentScene?.time } options={timeOfDayOptions} />
+                      </div>
+
+
+                      <div className={ baseStyle.inlineRow }>
+                        <Input type="number" id="scriptDay" label="Script Day" value={ currentScene?.scriptDay }  />
+                        <Input type="select" id="sceneSource" label="Scene Source" value={ currentScene?.sceneSource } options={ sceneSourceOptions } />
+                      </div>
+
+                      
+                      <Input type="textarea" id="synopsis" label="Scene Synopsis" value={ currentScene?.synopsis } />
+                      <Input type="textarea" id="emotionalBeat" label="Emotional Beat" value={ currentScene?.emotionalBeat } />
+                      <Input type="textarea" id="productionNotes" label="Production Notes" hint="(optional)" value={ currentScene?.productionNotes } />
+
+                      
+                      
+                      <section className="flex flex-col gap-2">
+                        <h3 className="panel-heading">Characters</h3>
+
+                        { cast.characters.map(( entry ) => {
+                          const character = project.characters?.find( ix => ix.id === entry.id )
+
+                          return <SceneCastRow
+                            key={ entry.id }
+                            title={ character?.name ?? entry.id }
+                            subtitle={ entry.look }
+                            initial={ ( character?.name ?? "?" ).charAt(0) }
+                            wardrobe={ entry.wardrobe.map( wardrobeName ) }
+                            props={ ( entry.props ?? [] ).map( propName ) }
+                            onRemove={ () => updateCast({ characters: cast.characters.filter( ix => ix.id !== entry.id ) }) }
+                          />
+                        })}
+
+                        <Button
+                          type="Inline"
+                          size="Small"
+                          icon={ MdAdd }
+                          label="Add character to scene"
+                          onClick={ () => setShowAddCharacter( true ) }
+                        />
+                      </section>
+
+
+                      <section className="flex flex-col gap-2">
+                        <h3 className="panel-heading">Props</h3>
+
+                        { cast.props.map(( entry ) => (
+                          <SceneCastRow
+                            key={ entry.id }
+                            title={ entry.name }
+                            subtitle={ entry.look }
+                            onRemove={ () => updateCast({ props: cast.props.filter( ix => ix.id !== entry.id ) }) }
+                          />
+                        ))}
+
+                        <Button
+                          type="Inline"
+                          size="Small"
+                          icon={ MdAdd }
+                          label="Add props to scene"
+                          onClick={ () => setShowAddProp( true ) }
+                        />
+                      </section>
+
+
+                      <Button type="Primary" icon={ MdCheck } label="Save Changes" stretch onClick={ () => null } />
+
+
+                      <AddCharacterModal
+                        show={ showAddCharacter }
+                        onClose={ () => setShowAddCharacter( false ) }
+                        characters={ ( project.characters ?? [] ).filter( ix => !cast.characters.some( entry => entry.id === ix.id )) }
+                        wardrobe={ wardrobe }
+                        props={ propCatalogue }
+                        onAdd={ ( entry ) => updateCast({ characters: [ ...cast.characters, entry ] }) }
+                        onCreateWardrobe={ createWardrobe }
+                        onCreateProp={ createProp }
+                      />
+
+                      <AddPropModal
+                        show={ showAddProp }
+                        onClose={ () => setShowAddProp( false ) }
+                        characters={ project.characters ?? [] }
+                        props={ propCatalogue.filter( ix => !cast.props.some( entry => entry.id === ix.id )) }
+                        onAdd={ addProps }
+                        onCreateProp={ createProp }
+                      />
+                     </div> }
+
+
+
+
+
+
+
+
+                     { activeTab === "shot" && <div>
+
+                      { currentScene?.shots && currentScene?.shots.map((field) => (
+                        <div key={field.id} className={`${baseStyle.inlineRow} items-start mb-10`}>
+                            <Button type="Tertiary" icon={MdDragHandle} />
+                            <div className="grow flex flex-col border-b border-color pb-2">
+                                
+                                <div className={ baseStyle.inlineRow}>
+                                  <Input
+                                        type="text"
+                                        size="G"
+                                        id={ field.id }
+                                        value={ field.label }
+                                  />
+                                  <Input
+                                        type="select"
+                                        size="G"
+                                        id={`select-${ field.id }`}
+                                        value={ field.shotType }
+                                        options={ shotOptions }
+                                  />
+                                </div>
+
+                                <Input
+                                      type="textarea"
+                                      id={ field.id }
+                                      size="G"
+                                      value={ field.description }
+                                />
+
+
+                            </div>
+                        </div>
+                        ))}
+
+                      
+                    { currentScene?.shots ? <Button type="Inline" label="Add a Shot" icon={ MdAdd } /> :  <EmptyState 
+                        icon={ MdOutlineViewAgenda }
+                        title="There are no shots"
+                        subtitle="You will see shots here when they're generated"
+                      /> }
+                      
+                    </div>}
+
+
+                    </div>
+
+          </div>
+
+
+        </div>
+
+
+  );
+}

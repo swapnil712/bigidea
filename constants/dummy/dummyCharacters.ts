@@ -1,0 +1,68 @@
+import { CharacterProps } from "@/types/project";
+
+export const dummyCharacters: CharacterProps[] = [
+  {
+    id: "char-1",
+    name: 'Sarah "Booker" Petree',
+    role: "protagonist",
+    ageRange: "30 - 40",
+    gender: "Female",
+    ethnicity: "Unspecified, likely White American",
+    build: "Medium, poised",
+    style: "Fit, put-together",
+    description:
+      "A woman in her thirties whose natural beauty is matched only by her cutting intelligence. She wears cowboy boots.",
+    looks: [],
+    wardrobe: ["wrd-4930"],
+    props: [],
+    referenceImages: [],
+  },
+  {
+    id: "char-2",
+    name: "Dani",
+    role: "supporting",
+    ageRange: "35 - 45",
+    gender: "Female",
+    ethnicity: "Unspecified, likely Belizean Creole",
+    build: "Lean, weathered",
+    style: "Practical field gear, sun-worn",
+    description:
+      "A marine biologist who has spent two years quietly documenting anomalies in the reef ecosystem, getting nowhere until Sam shows up. Guarded but relieved to finally be believed.",
+    wardrobe: [],
+    looks: [],
+    props: [],
+    referenceImages: [],
+  },
+  {
+    id: "char-3",
+    name: "The Contractor",
+    role: "npc",
+    ageRange: "40 - 50",
+    gender: "Male",
+    ethnicity: "Unspecified",
+    build: "Solid, unremarkable on purpose",
+    style: "Civilian clothes, too calm, too well-resourced",
+    description:
+      "A man in plain clothes who asks Sam politely to come answer some questions. Not local law enforcement. Pragmatic, not sadistic — dangerous because he believes he's doing the right thing.",
+    wardrobe: [],
+    looks: [],
+    props: [],
+    referenceImages: [],
+  },
+  {
+    id: "char-4",
+    name: "The Handler",
+    role: "supporting",
+    ageRange: "45 - 55",
+    gender: "Female",
+    ethnicity: "Unspecified",
+    build: "Composed, corporate",
+    style: "Understated, expensive",
+    description:
+      "The company's on-the-ground representative overseeing the cover-up. Believes in the science. Views Sam as a containment problem, not a person.",
+    wardrobe: [],
+    looks: [],
+    props: [],
+    referenceImages: [],
+  },
+];

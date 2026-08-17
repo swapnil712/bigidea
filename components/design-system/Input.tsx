@@ -1,0 +1,125 @@
+import { IconType } from "react-icons";
+import { baseStyle } from "@/constants/styles";
+import { OptionType } from "@/constants/choices";
+import { MdOutlineCloudUpload } from "react-icons/md";
+
+type InputSize = "S" | "L" | "G";
+
+type InputFieldType =
+  | "text"
+  | "email"
+  | "password"
+  | "number"
+  | "tel"
+  | "url"
+  | "file"
+  | "textarea"
+  | "select";
+
+interface InputProps {
+  type?: InputFieldType;
+  id: string,
+  size?: InputSize;
+  active?: boolean;
+  label?: string;
+  hint?: string;
+  rows?: number,
+  options?: OptionType[];
+  leftIcon?: IconType;
+  prefix?: string;
+  suffix?: string;
+  placeholder?: string;
+  value?: string | number;
+  onChange?: (value: string) => void;
+  onClick?: () => void;
+}
+
+const sizeStyles: Record<InputSize, string> = {
+  S: "",
+  L: "p-2",
+  G: ""
+};
+
+export const Input = ({
+  type = "text",
+  size,
+  id,
+  suffix,
+  label,
+  rows,
+  hint,
+  leftIcon,
+  prefix,
+  options,
+  placeholder,
+  value,
+  onChange,
+}: InputProps) => {
+  const isSize = size || "L";
+  const Icon = leftIcon;
+
+  const wrapLines = size === "G" ? "text-md border-transparent hover:border-zinc-700 group-focus-within:border-zinc-500" : "border-color group-focus-within:border-zinc-400!"
+
+  const wrapperStyle = `${ wrapLines } ${ sizeStyles[isSize] } p-2 border-2 flex flex-row items-center rounded-md grow gap-2`;
+  const preSuf = "opacity-60";
+
+
+  const sharedInputProps = {
+    placeholder,
+    defaultValue: value,
+    id,
+    onChange: (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) => onChange?.(e.target.value),
+  };
+
+
+
+  let renderable;
+
+  switch (type) {
+    case "textarea":
+      renderable = <textarea rows={ rows || 3 } {...sharedInputProps} className="outline-0 w-full" />;
+      break;
+    case "select":
+      renderable = (
+        <select {...sharedInputProps} className="outline-0 w-full">
+          {options &&
+            options.map((item) => (
+              <option value={item.id} key={item.id}>
+                {item.label}
+              </option>
+            ))}
+        </select>
+      );
+      break;
+    default:
+      renderable = (
+        <>
+          {prefix && <span className={preSuf}>{prefix}</span>}
+          {Icon && <Icon size={isSize === "L" ? 20 : 16} />}
+
+          <input type={type} {...sharedInputProps} className="outline-0 w-full grow" />
+
+          {suffix && <span className={preSuf}>{suffix}</span>}
+          { type==="file" && <MdOutlineCloudUpload size={isSize === "L" ? 20 : 16} />}
+        </>
+      );
+      break;
+  }
+
+  return (
+    <div className={`${baseStyle.inlineCol} group grow w-full`}>
+
+      {label && (
+        <label htmlFor={ id } className={baseStyle.inlineRow}>
+          <span className="font-bold">{label}</span>
+          {hint && <span className={ preSuf }>{hint}</span>}
+        </label>
+      )}
+
+      <div className={`${wrapperStyle} flex flex-row w-full`}>{renderable}</div>
+
+    </div>
+  );
+};
