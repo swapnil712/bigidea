@@ -60,9 +60,7 @@ export default function Page () {
                 ))}
 
 
-            <div>
-                <Button type="Primary" size="Regular" icon={ MdCheck } label="Save Changes" />
-            </div>
+
         </div>
 
 

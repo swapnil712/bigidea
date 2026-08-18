@@ -82,7 +82,7 @@ export default function Prompter ( { isFocused } : { isFocused ?: boolean }) {
 
         <div>
 
-                    <textarea ref={ textarea } placeholder="Write your story idea or concept here...." rows={ 4 } className="text-lg w-full outline-0" />
+                    <textarea ref={ textarea } placeholder="Write your story idea or concept here...." rows={ 7 } className="text-xl w-full outline-0" />
                     
                     
                     <div className={`${ baseStyle.inlineRow } border-t border-color pt-3`}>

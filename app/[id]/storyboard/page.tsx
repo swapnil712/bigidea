@@ -11,29 +11,29 @@ import EmptyState from "@/components/local/EmptyState";
 import StoryboardCard from "../_components/StoryboardCard";
 import CreateSceneModal from "../_components/CreateSceneModal";
 import { intExtOptions, timeOfDayOptions } from "@/constants/plot";
+import { usePanel } from "../panel-context";
 
 export default function Home() {
 
   const [activeScene, setActiveScene] = useState<string | undefined>(undefined)
-  // Set to the script day of whichever sidebar group's "+" was pressed.
   const [createScene, setCreateScene] = useState<number | undefined>(undefined)
 
-  // Prompt edits live here until there is somewhere to save them — keyed by shot
-  // id so switching scenes keeps whatever was typed against each frame.
   const [promptEdits, setPromptEdits] = useState<Record<string, string>>({})
   const [sceneList, setSceneList] = useState<SceneProps[]>([])
 
   const project = useProject()
+  const { toggleSideBar } = usePanel();
 
   useEffect(( ) => {
       if ( !activeScene ) {
         setActiveScene(  project.scenes ? project.scenes[0].id : undefined )
       }
+      setSceneList( project.scenes ?? [] )
   }, [ project ])
 
   useEffect(() => {
-    setSceneList( project.scenes ?? [] )
-  }, [ project ])
+    toggleSideBar()
+  }, [])
 
   const currentScene = sceneList.find( ix => ix.id === activeScene)
 

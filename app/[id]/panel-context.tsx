@@ -9,7 +9,7 @@ interface PanelContextType {
 const PanelContext = createContext<PanelContextType | null>(null);
 
 export const PanelProvider = ({ children }: { children: React.ReactNode }) => {
-  const [showSideBar, setShowSideBar] = useState( false );
+  const [showSideBar, setShowSideBar] = useState( true );
 
   const toggleSideBar = () => setShowSideBar((prev) => !prev);
 

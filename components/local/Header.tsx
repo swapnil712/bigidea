@@ -91,7 +91,7 @@ export default function Header ( { type, project, onNewProject } : HeaderProps) 
     variant="Inside"
     leftButtons={[
       { icon: MdArrowBack, type:"Tertiary", href: "/" },
-      { icon: MdOutlineWeb, type: !showSideBar ? "Tertiary" : "Secondary", onClick: toggleSideBar }
+      { icon: MdOutlineWeb, type: !showSideBar ? "Inline" : "Tertiary", onClick: toggleSideBar }
     ]}
     projectName={ project?.title || "Untitled Project" }
     rightButtons={[
