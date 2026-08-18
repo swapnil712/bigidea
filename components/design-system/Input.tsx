@@ -2,6 +2,7 @@ import { IconType } from "react-icons";
 import { baseStyle } from "@/constants/styles";
 import { OptionType } from "@/constants/choices";
 import { MdOutlineCloudUpload } from "react-icons/md";
+import { getRows } from "@/functions/getRows";
 
 type InputSize = "S" | "L" | "G";
 
@@ -60,7 +61,7 @@ export const Input = ({
 
   const wrapLines = size === "G" ? "text-md border-transparent hover:border-zinc-700 group-focus-within:border-zinc-500" : "border-color group-focus-within:border-zinc-400!"
 
-  const wrapperStyle = `${ wrapLines } ${ sizeStyles[isSize] } p-2 border-1 flex flex-row items-center rounded-sm text-md grow gap-1`;
+  const wrapperStyle = `${ wrapLines } ${ sizeStyles[isSize] } p-1 border-1 flex flex-row items-center rounded-sm text-md grow gap-1`;
   const preSuf = "opacity-60";
 
 
@@ -68,6 +69,7 @@ export const Input = ({
     placeholder,
     defaultValue: value,
     id,
+    className: "outline-0 w-full text-sm",
     onChange: (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => onChange?.(e.target.value),
@@ -79,11 +81,11 @@ export const Input = ({
 
   switch (type) {
     case "textarea":
-      renderable = <textarea rows={ rows || 3 } {...sharedInputProps} className="outline-0 w-full" />;
+      renderable = <textarea rows={ getRows( value as string ) || rows } {...sharedInputProps} />;
       break;
     case "select":
       renderable = (
-        <select {...sharedInputProps} className="outline-0 w-full">
+        <select {...sharedInputProps}>
           {options &&
             options.map((item) => (
               <option value={item.id} key={item.id}>
@@ -99,7 +101,7 @@ export const Input = ({
           {prefix && <span className={preSuf}>{prefix}</span>}
           {Icon && <Icon size={isSize === "L" ? 20 : 16} />}
 
-          <input type={type} {...sharedInputProps} className="outline-0 w-full grow" />
+          <input type={type} {...sharedInputProps} />
 
           {suffix && <span className={preSuf}>{suffix}</span>}
           { type==="file" && <MdOutlineCloudUpload size={isSize === "L" ? 20 : 16} />}

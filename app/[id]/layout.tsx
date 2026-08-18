@@ -18,7 +18,7 @@ export default async function Layout ( { children, params } : { children : React
 
             <Header type="Inside" project={ project } />
 
-            <div className={`${ baseStyle.inlineRow } px-3 items-start`}>
+            <div className={`${ baseStyle.inlineRow } px-3 gap-1! items-start`}>
                 <Nav project={ project } />
                 { children }
             </div>

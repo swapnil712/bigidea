@@ -1,7 +1,7 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineRoom, MdOutlineViewAgenda } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdContentCopy, MdDelete, MdOutlineRoom, MdOutlineViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
 import { LocationProps, ReferenceImage } from "@/types/project";
@@ -108,8 +108,11 @@ export default function Home() {
             <SectionHeader
               label={ currentLocation?.name || "Location" }
               rightButtons={[
-                { icon: MdAutoAwesome, label: "Generate Looks", type: "Secondary", onClick: () => null },
-                { icon: MdDelete, type: "Tertiary", onClick: () => null }
+                { icon: MdAutoAwesome, label: "Generate Reference", type: "Primary", onClick: () => null },
+              ]}
+              menu={[
+                { id: "duplicate", label: "Duplicate location", icon: MdContentCopy, onClick: () => null },
+                { id: "delete", label: "Delete location", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
             />
 

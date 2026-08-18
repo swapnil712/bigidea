@@ -81,6 +81,14 @@ export const assetCategoryOptions: OptionType[] = [
   { id: "animal", label: "Animal/Creature" },
 ];
 
+// The three frames previz generates out of a single storyboard image. Order
+// matters — each beat is generated from the one before it.
+export const previzBeatOptions: OptionType[] = [
+  { id: "start", label: "Start" },
+  { id: "middle", label: "Middle" },
+  { id: "end", label: "End" },
+];
+
 export const shotOptions: OptionType[] = [
   { id: "mid", label: "Medium Closeup" },
   { id: "close", label: "Closeup" },

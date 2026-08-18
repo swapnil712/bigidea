@@ -21,7 +21,7 @@ const sizeStyles: Record<MenuSize, { text: string; icon: number }> = {
 };
 
 const activeStyles = {
-  active: "bg-zinc-700 text-white font-bold",
+  active: "bg-zinc-900 text-indigo-500 font-bold",
   inactive: "hover:bg-zinc-700 text-zinc-300",
 };
 

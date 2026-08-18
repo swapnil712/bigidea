@@ -1,13 +1,12 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdCheck, MdDragHandle, MdOutlineViewAgenda, MdUnfoldMore } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdCheck, MdContentCopy, MdDelete, MdDragHandle, MdOutlineViewAgenda, MdOutlineViewCarousel, MdUnfoldMore } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
 import { CharacterLookInSceneProps, CharacterWardrobeItem, PropProps, SceneProps } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
-import { Tab } from "@/components/design-system/Tab";
 import { Input } from "@/components/design-system/Input";
 import { intExtOptions, sceneSourceOptions, shotOptions, timeOfDayOptions } from "@/constants/plot";
 import EmptyState from "@/components/local/EmptyState";
@@ -26,7 +25,6 @@ interface SceneCast {
 export default function Home() {
 
   const [activeScene, setActiveScene] = useState<string | undefined>(undefined)
-  const [activeTab, setActiveTab] = useState<string | undefined>( undefined )
   const [showAddCharacter, setShowAddCharacter] = useState(false)
   const [showAddProp, setShowAddProp] = useState(false)
   // Set to the script day of whichever sidebar group's "+" was pressed.
@@ -53,9 +51,6 @@ export default function Home() {
     setPropCatalogue( project.props ?? [] )
   }, [ project ])
 
-  useEffect(() => {
-    setActiveTab("plan")
-  }, [])
 
   const currentScene = sceneList.find( ix => ix.id === activeScene)
 
@@ -91,6 +86,7 @@ export default function Home() {
           
 
     <aside className="min-w-1/5 flex p-2 flex-col sticky top-0">
+
       {Object.entries(
         sceneList.reduce<Record<number, SceneProps[]>>((groups, scene) => {
           groups[scene.scriptDay] = groups[scene.scriptDay] || [];
@@ -142,32 +138,28 @@ export default function Home() {
                   ${ locationName( currentScene.location ) } - 
                   ${ timeOfDayOptions.find ( ix => ix.id === currentScene.time )?.label }` : "Storyboard" }
               rightButtons={[
-                { icon: MdOutlineViewAgenda, label: "Group by Script Day", type: "Tertiary", onClick: () => null },
-                { icon: MdUnfoldMore, label: "Order by Scene Number", type: "Tertiary", onClick: () => null }
+                { icon: MdOutlineViewAgenda, type:"Tertiary", label: "Script Day", onClick: () => null },
+                { icon: MdUnfoldMore, type:"Tertiary", label: "Scene Number", onClick: () => null },
+                currentScene?.shots?.length
+                  ? { icon: MdOutlineViewCarousel, label: "Storyboard this Scene", type: "Primary", onClick: () => null }
+                  : { icon: MdAutoAwesome, label: "Generate Shots", type: "Primary", onClick: () => null },
+              ]}
+              menu={[
+                { id: "duplicate", label: "Duplicate scene", icon: MdContentCopy, onClick: () => null },
+                { id: "delete", label: "Delete scene", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
             />
 
 
-                    <div className="p-5 gap-5 flex flex-col max-w-200 mx-auto">
-                      <Tab
-                          active={ activeTab }
-                          type="Flat"
-                          onClick={ setActiveTab }
-                          menu={[
-                            {
-                              label: "Planning View",
-                              id: "plan"
-                            },
-                            {
-                              label: "Shot Breakdown",
-                              id: "shot"
-                            }
-                          ]}
-                      />
+                    <div className="p-5 gap-5 flex flex-col mx-auto">
 
                      
+                    <section className={`${ baseStyle.inlineRow } items-start gap-3`}>
 
-                     { activeTab === "plan" && <div className="flex flex-col gap-5">
+
+                    <div className="wrapper p-5 flex flex-col gap-5 w-1/2">
+
+                      <h2 className="font-bold">Scene Details</h2>
 
                        <div className={ baseStyle.inlineRow }>
                         <Input type="select" id="intExt" label="INT/EXT" value={ currentScene?.intExt } options={intExtOptions} />
@@ -270,21 +262,18 @@ export default function Home() {
                           setActiveScene( scene.id )
                         }}
                       />
-                     </div> }
+                     </div> 
+                     
+                     
+                     
+                    <div className="wrapper p-5 w-1/2">
 
-
-
-
-
-
-
-
-                     { activeTab === "shot" && <div>
+                      <h2 className="font-bold mb-4">Shots Breakdown</h2>
 
                       { currentScene?.shots && currentScene?.shots.map((field) => (
-                        <div key={field.id} className={`${baseStyle.inlineRow} items-start mb-10`}>
-                            <Button type="Tertiary" icon={MdDragHandle} />
-                            <div className="grow flex flex-col border-b border-color pb-2">
+                        <div key={field.id} className={`${baseStyle.inlineRow} items-start mb-5`}>
+                            <Button type="Tertiary" size="Small" icon={MdDragHandle} />
+                            <div className="grow flex flex-col border-b border-color pb-4">
                                 
                                 <div className={ baseStyle.inlineRow}>
                                   <Input
@@ -321,7 +310,10 @@ export default function Home() {
                         subtitle="You will see shots here when they're generated"
                       /> }
                       
-                    </div>}
+                    </div>
+
+
+                    </section>
 
 
                     </div>

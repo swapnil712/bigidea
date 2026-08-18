@@ -1,28 +1,28 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdDelete, MdDownload, MdDragHandle, MdOutlineImage, MdOutlineViewCarousel, MdUnfoldMore } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdDelete, MdDownload, MdDragHandle, MdOutlineImage, MdOutlinePlayCircle } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
 import { SceneProps } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import EmptyState from "@/components/local/EmptyState";
-import StoryboardCard from "../_components/StoryboardCard";
+import PrevizRow from "../_components/PrevizRow";
 import CreateSceneModal from "../_components/CreateSceneModal";
-import { intExtOptions, timeOfDayOptions } from "@/constants/plot";
-import { usePanel } from "../panel-context";
+import { intExtOptions, previzBeatOptions, timeOfDayOptions } from "@/constants/plot";
 
 export default function Home() {
 
   const [activeScene, setActiveScene] = useState<string | undefined>(undefined)
   const [createScene, setCreateScene] = useState<number | undefined>(undefined)
 
-  const [promptEdits, setPromptEdits] = useState<Record<string, string>>({})
+  // Which beats have been generated, keyed by shot id. Lives here until there
+  // is somewhere to save them.
+  const [generated, setGenerated] = useState<Record<string, string[]>>({})
   const [sceneList, setSceneList] = useState<SceneProps[]>([])
 
   const project = useProject()
-  const { toggleSideBar } = usePanel();
 
   useEffect(( ) => {
       if ( !activeScene ) {
@@ -31,13 +31,19 @@ export default function Home() {
       setSceneList( project.scenes ?? [] )
   }, [ project ])
 
-  useEffect(() => {
-    toggleSideBar()
-  }, [])
-
   const currentScene = sceneList.find( ix => ix.id === activeScene)
 
   const locationName = ( id: string ) => project.locations?.find( ix => ix.id === id )?.name ?? id
+
+  const generate = ( shotId: string, beat: string ) => setGenerated( prev => ({
+    ...prev,
+    [ shotId ]: prev[ shotId ]?.includes( beat ) ? prev[ shotId ] : [ ...( prev[ shotId ] ?? [] ), beat ]
+  }))
+
+  const generateAll = ( shotId: string ) => setGenerated( prev => ({
+    ...prev,
+    [ shotId ]: previzBeatOptions.map( ix => ix.id )
+  }))
 
 
   return (<div className={`wrapper grow items-start flex-row flex`}>
@@ -88,46 +94,47 @@ export default function Home() {
 
           <div className="grow border-s bg-zinc-900 border-color">
             <SectionHeader
-              label={ currentScene ? `${ intExtOptions.find ( ix => ix.id === currentScene.intExt)?.label }. 
-                  ${ locationName( currentScene.location ) } - 
-                  ${ timeOfDayOptions.find ( ix => ix.id === currentScene.time )?.label }` : "Storyboard" }
+              label={ currentScene ? `${ intExtOptions.find ( ix => ix.id === currentScene.intExt)?.label }.
+                  ${ locationName( currentScene.location ) } -
+                  ${ timeOfDayOptions.find ( ix => ix.id === currentScene.time )?.label }` : "Previz Images" }
               rightButtons={[
-                { icon: MdAutoAwesome, label: "Generate all Frames", type: "Primary", onClick: () => null },
-                { icon: MdOutlineImage, label: "Previz this Scene", type: "Secondary", onClick: () => null }
+                {
+                  icon: MdAutoAwesome,
+                  label: "Generate all Previz",
+                  type: "Primary",
+                  onClick: () => currentScene?.shots?.forEach( shot => generateAll( shot.id ))
+                },
+                { icon: MdOutlinePlayCircle, label: "Play Animatic", type: "Secondary", onClick: () => null }
               ]}
               menu={[
-                { id: "reorder", label: "Re-order shots", icon: MdUnfoldMore, onClick: () => null },
-                { id: "export", label: "Export contact sheet", icon: MdDownload, onClick: () => null },
-                { id: "clear", label: "Clear all frames", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
+                { id: "regenerate", label: "Regenerate all", icon: MdAutoAwesome, onClick: () => null },
+                { id: "export", label: "Export frames", icon: MdDownload, onClick: () => null },
+                { id: "clear", label: "Clear all previz", icon: MdDelete, tone: "Danger", separated: true, onClick: () => setGenerated({}) }
               ]}
             />
 
 
                     <div className="p-5">
 
-                      { currentScene?.shots ? <div className="grid grid-cols-1 md:grid-cols-3 2xl:grid-cols-4 gap-5">
+                      { currentScene?.shots ? <div className="flex flex-col gap-5">
 
                         { currentScene.shots.map(( shot, index ) => (
-                          <StoryboardCard
+                          <PrevizRow
                             key={ shot.id }
                             shot={ shot }
                             index={ index }
                             aspectRatio={ project.aspectRatio }
-                            prompt={ promptEdits[ shot.id ] ?? shot.description }
-                            onPromptChange={ ( value ) => setPromptEdits( prev => ({ ...prev, [ shot.id ]: value })) }
-                            onGenerate={ () => null }
+                            generated={ generated[ shot.id ] ?? [] }
+                            onGenerate={ ( beat ) => generate( shot.id, beat ) }
+                            onGenerateAll={ () => generateAll( shot.id ) }
+                            storyboardHref={ `/${ project.id }/storyboard` }
                           />
                         ))}
 
-                        <div className="border border-dotted rounded-lg border-color min-h-100 flex gap-3 flex-col justify-center items-center">
-                              <MdOutlineImage size={32} className="opacity-40" />
-                            <Button label="Add a Frame" type="Inline" />
-                        </div>
-
                       </div> : <EmptyState
-                        icon={ MdOutlineViewCarousel }
-                        title="There are no shots to storyboard"
-                        subtitle="Break the scene down into shots and the frames will show up here."
+                        icon={ MdOutlineImage }
+                        title="There are no shots to previz"
+                        subtitle="Break the scene down into shots and storyboard them, then the start, middle and end frames show up here."
                       /> }
 
                       <CreateSceneModal

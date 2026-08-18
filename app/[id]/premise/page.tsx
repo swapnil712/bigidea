@@ -5,8 +5,9 @@ import { SectionHeader } from "@/components/local/SectionHeader";
 import { premiseFields } from "@/constants/plot";
 import { baseStyle } from "@/constants/styles";
 import { getRows } from "@/functions/getRows";
-import { MdAutoAwesome, MdCheck, MdDownload, MdDragHandle, MdHistory, MdOutlineDescription, MdRefresh } from "react-icons/md";
+import { MdAutoAwesome, MdCheck, MdDownload, MdDragHandle, MdOutlineDescription, MdRefresh } from "react-icons/md";
 import { useProject } from "../project-context";
+import { dummyPremiseVersions } from "@/constants/dummy/dummyVersions";
 import EmptyState from "@/components/local/EmptyState";
 
 export default function Page () {
@@ -31,15 +32,19 @@ export default function Page () {
        <div className="grow bg-zinc-900 rounded-xl">
 
          <SectionHeader
-            leftButton={{ icon: MdHistory, size: "Regular", type: "Tertiary" }}
+            versions={ dummyPremiseVersions }
             label="Premise"
             rightButtons={[
-            { icon: MdAutoAwesome, label: "Re-generate", type: "Primary", onClick: () => null },
-            { icon: MdDownload, label: "Download", type: "Secondary", onClick: () => null }
+            { icon: MdOutlineDescription, label: "Write Screenplay", type: "Primary", onClick: () => null },
+            { icon: MdAutoAwesome, label: "Re-generate", type: "Secondary", onClick: () => null }
+            ]}
+            menu={[
+              { id: "download", label: "Download", icon: MdDownload, onClick: () => null },
+              { id: "reset", label: "Reset fields", icon: MdRefresh, tone: "Danger", separated: true, onClick: () => null }
             ]}
         />
 
-        <div className="py-6 gap-10 flex flex-col max-w-200 mx-auto">
+        <div className="gap-6 flex flex-col max-w-200 mx-auto my-10">
            
            
            { project.premise && premiseFields.map((field) => (

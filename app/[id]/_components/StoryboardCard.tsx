@@ -4,21 +4,12 @@ import { MdAutoAwesome } from "react-icons/md";
 import { Button } from "@/components/design-system/Button";
 import { Capsule } from "@/components/design-system/Capsule";
 import { Input } from "@/components/design-system/Input";
-import { baseStyle } from "@/constants/styles";
+import { aspectStyles, baseStyle } from "@/constants/styles";
 import { shotOptions } from "@/constants/plot";
 import { aspectRatioOptions } from "@/constants/choices";
 import { Shot } from "@/types/project";
 
 type AspectRatioId = (typeof aspectRatioOptions)[number]["id"];
-
-// Full literal class names so Tailwind can scan them.
-const aspectStyles: Record<AspectRatioId, string> = {
-  "9-16": "aspect-[9/16]",
-  "16-9": "aspect-[16/9]",
-  "1-1": "aspect-square",
-  "4-5": "aspect-[4/5]",
-  "21-9": "aspect-[21/9]",
-};
 
 interface StoryboardCardProps {
   shot: Shot;

@@ -4,24 +4,33 @@ import { Input } from "@/components/design-system/Input";
 import { SectionHeader } from "@/components/local/SectionHeader";
 import { aspectRatioOptions, formatOptions, genreOptions, visualStyleOptions } from "@/constants/choices";
 import { baseStyle } from "@/constants/styles";
-import { MdAutoAwesome, MdCheck, MdHistory, MdOutlineFolder, MdOutlineUploadFile, MdViewAgenda } from "react-icons/md";
+import { MdAutoAwesome, MdCheck, MdDelete, MdDownload, MdOutlineFolder, MdOutlineUploadFile, MdViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
+import { dummyScriptVersions } from "@/constants/dummy/dummyVersions";
 import Screenplay from "../_components/Screenplay";
 import EmptyState from "@/components/local/EmptyState";
+import Modal from "@/components/local/Modal";
+import { Choice } from "@/components/design-system/Choice";
+import { useState } from "react";
 
 export default function Home() {
 
   const project = useProject()
+  const [showRewrite, setShowRewrite] = useState<boolean>(false)
 
   return (<div className={`wrapper grow items-start flex-row flex`}>
           
           <div className="grow border-e border-color">
             <SectionHeader
-              leftButton={{ icon: MdHistory, size: "Regular", type: "Tertiary" }}
+              versions={ dummyScriptVersions }
               label="Original Script"
               rightButtons={[
                 { icon: MdViewAgenda, label: "Build Scenes", type: "Primary", onClick: () => null },
-                { icon: MdAutoAwesome, label: "Rewrite", type: "Secondary", onClick: () => null }
+                { icon: MdAutoAwesome, label: "Rewrite", type: "Secondary", onClick: () => setShowRewrite(true) }
+              ]}
+              menu={[
+                { id: "download", label: "Download", icon: MdDownload, onClick: () => null },
+                { id: "clear", label: "Clear script", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
             />
             <div className="p-3">
@@ -47,6 +56,27 @@ export default function Home() {
                 <Button type="Primary" icon={ MdOutlineUploadFile } size="Small" label="Upload" />
               </div>
             </form>
+
+            <Modal show={ showRewrite } icon={ MdAutoAwesome } onClose={ () => setShowRewrite(false) } title="Re-write with AI">
+              <p>What do you want to do with the script?</p>
+              <Choice type="Radio" id="what_to_do"
+                  label="Rewrite entirely"
+                  subtitle="Describe what changes you need, and AI will write a new version"
+              />
+              <Choice type="Radio"  id="what_to_do"
+                  label="Complete the script"
+                  subtitle="Describe what happens next, and the AI will complete the script"
+              />
+
+              <div className={baseStyle.inlineCol}>
+                <hr className="border-b border-color my-2 w-full" />
+
+                <Input id="changes" type="textarea" rows={ 5 } label="Describe your changes" hint="(optional)" placeholder="Example, “make the dialogue more intense...”" />
+
+                <Button size="Regular" type="Primary" label="Generate" />
+
+              </div>
+            </Modal>
 
 
             <h3 className="panel-heading px-4!">Project Details</h3>

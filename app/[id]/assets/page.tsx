@@ -1,7 +1,7 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineAddBox, MdOutlineViewAgenda } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdContentCopy, MdDelete, MdOutlineAddBox, MdOutlineViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
 import { AssetCategories, AssetProps, ReferenceImage } from "@/types/project";
@@ -122,8 +122,11 @@ export default function Home() {
             <SectionHeader
               label={ currentAsset?.name || "Asset" }
               rightButtons={[
-                { icon: MdAutoAwesome, label: "Generate Looks", type: "Secondary", onClick: () => null },
-                { icon: MdDelete, type: "Tertiary", onClick: () => null }
+                { icon: MdAutoAwesome, label: "Generate Reference", type: "Primary", onClick: () => null },
+              ]}
+              menu={[
+                { id: "duplicate", label: "Duplicate asset", icon: MdContentCopy, onClick: () => null },
+                { id: "delete", label: "Delete asset", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
             />
 

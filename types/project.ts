@@ -97,6 +97,14 @@ export interface CharacterReferenceImage {
   url: string;
 }
 
+// Version history behind a SectionHeader's left button. Newest first — the
+// first entry is the current version, the rest are past ones.
+export interface DocumentVersion {
+  id: string;
+  label: string;
+  updated: Date;
+}
+
 export interface ReferenceImage {
   id: string;
   name: string;

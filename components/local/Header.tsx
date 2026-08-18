@@ -74,8 +74,6 @@ interface HeaderProps {
 
 export default function Header ( { type, project, onNewProject } : HeaderProps) {
 
-  const { showSideBar, toggleSideBar } = usePanel();
-
   return type === "Base" ? <HeaderContent
     variant="Base"
     leftButtons={[{ icon: MdOutlineHome, type: "Tertiary", onClick: ()=>null }]}
@@ -91,7 +89,6 @@ export default function Header ( { type, project, onNewProject } : HeaderProps) 
     variant="Inside"
     leftButtons={[
       { icon: MdArrowBack, type:"Tertiary", href: "/" },
-      { icon: MdOutlineWeb, type: !showSideBar ? "Inline" : "Tertiary", onClick: toggleSideBar }
     ]}
     projectName={ project?.title || "Untitled Project" }
     rightButtons={[

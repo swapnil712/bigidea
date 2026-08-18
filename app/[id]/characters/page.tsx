@@ -1,7 +1,7 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdDelete, MdOutlineCheckroom, MdOutlineInventory2, MdPersonOutline } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdContentCopy, MdDelete, MdOutlineCheckroom, MdOutlineInventory2, MdPersonOutline } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
 import { CharacterProps, CharacterRole, CharacterWardrobeItem, PropProps, ReferenceImage } from "@/types/project";
@@ -142,7 +142,6 @@ export default function Home() {
 
         <div key={characterRole} className="flex flex-col">
 
-
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
             <span>{ characterRoleOptions.find ( ix => ix.id === characterRole )?.label }</span>
             <div className="border-color border-t grow" />
@@ -181,8 +180,11 @@ export default function Home() {
             <SectionHeader
               label={ currentChar?.name || "Character" }
               rightButtons={[
-                { icon: MdAutoAwesome, label: "Generate Looks", type: "Secondary", onClick: () => null },
-                { icon: MdDelete, type: "Tertiary", onClick: () => null }
+                { icon: MdAutoAwesome, label: "Generate Looks", type: "Primary", onClick: () => null }
+              ]}
+              menu={[
+                { id: "duplicate", label: "Duplicate character", icon: MdContentCopy, onClick: () => null },
+                { id: "delete", label: "Delete character", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
             />
 

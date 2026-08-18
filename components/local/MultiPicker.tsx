@@ -128,7 +128,7 @@ export default function MultiPicker({
                     key={option.id}
                     id={`${id}-${option.id}`}
                     type="Checkbox"
-                    size="S"
+                    size="L"
                     label={option.label}
                     checked={selected.includes(option.id)}
                     onClick={() => toggle(option.id)}
