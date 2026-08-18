@@ -89,6 +89,28 @@ export const previzBeatOptions: OptionType[] = [
   { id: "end", label: "End" },
 ];
 
+export const cameraMovementOptions: OptionType[] = [
+  { id: "static", label: "Static / Lock-off" },
+  { id: "pan", label: "Pan" },
+  { id: "tilt", label: "Tilt" },
+  { id: "push-in", label: "Push In" },
+  { id: "pull-out", label: "Pull Out" },
+  { id: "track", label: "Tracking" },
+  { id: "crane", label: "Crane / Jib" },
+  { id: "handheld", label: "Handheld" },
+  { id: "steadicam", label: "Steadicam" },
+  { id: "zoom", label: "Zoom" },
+];
+
+export const focalLengthOptions: OptionType[] = [
+  { id: "14", label: "14mm" },
+  { id: "24", label: "24mm" },
+  { id: "35", label: "35mm" },
+  { id: "50", label: "50mm" },
+  { id: "85", label: "85mm" },
+  { id: "135", label: "135mm" },
+];
+
 export const shotOptions: OptionType[] = [
   { id: "mid", label: "Medium Closeup" },
   { id: "close", label: "Closeup" },

@@ -19,6 +19,7 @@ export type ScreenplayElementType =
 
 export type CharacterRole = "protagonist" | "supporting" | "npc";
 export type ShotType = "mid" | "wide" | "close"
+export type CameraMovement = "static" | "pan" | "tilt" | "push-in" | "pull-out" | "track" | "crane" | "handheld" | "steadicam" | "zoom"
 export type WardrobeCategories = "everyday" | "formal" | "casual" | "action" | "uniform" | "sleepwear" | "special"
 export type AssetCategories = "prop" | "vehicle" | "weapon" | "set-dressing" | "tech" | "animal"
 
@@ -130,6 +131,9 @@ export interface Shot {
   id: string;
   label: string;
   shotType: ShotType;
+  movement?: CameraMovement;
+  // In millimetres.
+  focalLength?: number;
   description: string;
 }
 

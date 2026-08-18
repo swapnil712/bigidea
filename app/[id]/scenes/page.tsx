@@ -4,11 +4,11 @@ import { SectionHeader } from "@/components/local/SectionHeader";
 import { MdAdd, MdAutoAwesome, MdCheck, MdContentCopy, MdDelete, MdDragHandle, MdOutlineViewAgenda, MdOutlineViewCarousel, MdUnfoldMore } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { CharacterLookInSceneProps, CharacterWardrobeItem, PropProps, SceneProps } from "@/types/project";
+import { CharacterLookInSceneProps, CharacterWardrobeItem, PropProps, SceneProps, Shot } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
-import { intExtOptions, sceneSourceOptions, shotOptions, timeOfDayOptions } from "@/constants/plot";
+import { cameraMovementOptions, focalLengthOptions, intExtOptions, sceneSourceOptions, shotOptions, timeOfDayOptions } from "@/constants/plot";
 import EmptyState from "@/components/local/EmptyState";
 import { toOptions } from "@/functions/toOptions";
 import { dummyLocations } from "@/constants/dummy/dummyLocations";
@@ -16,6 +16,7 @@ import SceneCastRow from "../_components/SceneCastRow";
 import AddCharacterModal from "../_components/AddCharacterModal";
 import AddPropModal from "../_components/AddPropModal";
 import CreateSceneModal from "../_components/CreateSceneModal";
+import CreateShotModal from "../_components/CreateShotModal";
 
 interface SceneCast {
   characters: CharacterLookInSceneProps[],
@@ -27,6 +28,7 @@ export default function Home() {
   const [activeScene, setActiveScene] = useState<string | undefined>(undefined)
   const [showAddCharacter, setShowAddCharacter] = useState(false)
   const [showAddProp, setShowAddProp] = useState(false)
+  const [showAddShot, setShowAddShot] = useState(false)
   // Set to the script day of whichever sidebar group's "+" was pressed.
   const [createScene, setCreateScene] = useState<number | undefined>(undefined)
 
@@ -74,6 +76,11 @@ export default function Home() {
   const createWardrobe = ( item: CharacterWardrobeItem ) => setWardrobe( prev => [ ...prev, item ])
 
   const createProp = ( item: PropProps ) => setPropCatalogue( prev => [ ...prev, item ])
+
+  // Shots live on the scene itself, so this edits the scene in the local list.
+  const addShot = ( shot: Shot ) => setSceneList( prev => prev.map( scene =>
+    scene.id === activeScene ? { ...scene, shots: [ ...( scene.shots ?? [] ), shot ] } : scene
+  ))
 
   const addProps = ( ids: string[] ) => updateCast({
     props: [
@@ -291,6 +298,23 @@ export default function Home() {
                                   />
                                 </div>
 
+                                <div className={ baseStyle.inlineRow}>
+                                  <Input
+                                        type="select"
+                                        size="G"
+                                        id={`movement-${ field.id }`}
+                                        value={ field.movement }
+                                        options={ cameraMovementOptions }
+                                  />
+                                  <Input
+                                        type="select"
+                                        size="G"
+                                        id={`focal-${ field.id }`}
+                                        value={ field.focalLength }
+                                        options={ focalLengthOptions }
+                                  />
+                                </div>
+
                                 <Input
                                       type="textarea"
                                       id={ field.id }
@@ -304,11 +328,19 @@ export default function Home() {
                         ))}
 
                       
-                    { currentScene?.shots ? <Button type="Inline" label="Add a Shot" icon={ MdAdd } /> :  <EmptyState 
+                    { !currentScene?.shots?.length && <EmptyState
                         icon={ MdOutlineViewAgenda }
                         title="There are no shots"
                         subtitle="You will see shots here when they're generated"
                       /> }
+
+                    <Button type="Inline" label="Add a Shot" icon={ MdAdd } onClick={ () => setShowAddShot( true ) } />
+
+                    <CreateShotModal
+                      show={ showAddShot }
+                      onClose={ () => setShowAddShot( false ) }
+                      onCreate={ addShot }
+                    />
                       
                     </div>
 

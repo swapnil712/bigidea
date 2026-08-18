@@ -4,12 +4,13 @@ import { SectionHeader } from "@/components/local/SectionHeader";
 import { MdAdd, MdAutoAwesome, MdDelete, MdDownload, MdDragHandle, MdOutlineImage, MdOutlineViewCarousel, MdUnfoldMore } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { SceneProps } from "@/types/project";
+import { SceneProps, Shot } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import EmptyState from "@/components/local/EmptyState";
 import StoryboardCard from "../_components/StoryboardCard";
 import CreateSceneModal from "../_components/CreateSceneModal";
+import CreateShotModal from "../_components/CreateShotModal";
 import { intExtOptions, timeOfDayOptions } from "@/constants/plot";
 import { usePanel } from "../panel-context";
 
@@ -17,6 +18,7 @@ export default function Home() {
 
   const [activeScene, setActiveScene] = useState<string | undefined>(undefined)
   const [createScene, setCreateScene] = useState<number | undefined>(undefined)
+  const [showAddShot, setShowAddShot] = useState(false)
 
   const [promptEdits, setPromptEdits] = useState<Record<string, string>>({})
   const [sceneList, setSceneList] = useState<SceneProps[]>([])
@@ -36,6 +38,11 @@ export default function Home() {
   }, [])
 
   const currentScene = sceneList.find( ix => ix.id === activeScene)
+
+  // A frame is a shot — the storyboard just draws it. Same edit either way.
+  const addShot = ( shot: Shot ) => setSceneList( prev => prev.map( scene =>
+    scene.id === activeScene ? { ...scene, shots: [ ...( scene.shots ?? [] ), shot ] } : scene
+  ))
 
   const locationName = ( id: string ) => project.locations?.find( ix => ix.id === id )?.name ?? id
 
@@ -121,7 +128,7 @@ export default function Home() {
 
                         <div className="border border-dotted rounded-lg border-color min-h-100 flex gap-3 flex-col justify-center items-center">
                               <MdOutlineImage size={32} className="opacity-40" />
-                            <Button label="Add a Frame" type="Inline" />
+                            <Button label="Add a Frame" type="Inline" onClick={ () => setShowAddShot( true ) } />
                         </div>
 
                       </div> : <EmptyState
@@ -129,6 +136,13 @@ export default function Home() {
                         title="There are no shots to storyboard"
                         subtitle="Break the scene down into shots and the frames will show up here."
                       /> }
+
+                      <CreateShotModal
+                        show={ showAddShot }
+                        onClose={ () => setShowAddShot( false ) }
+                        noun="Frame"
+                        onCreate={ addShot }
+                      />
 
                       <CreateSceneModal
                         show={ createScene !== undefined }
