@@ -5,26 +5,29 @@ import { MdPersonAddAlt } from "react-icons/md";
 import Modal from "@/components/local/Modal";
 import { Input } from "@/components/design-system/Input";
 import { baseStyle } from "@/constants/styles";
-import { ageRangeOptions, characterRoleOptions, genderOptions } from "@/constants/plot";
-import { CharacterProps, CharacterRole } from "@/types/project";
+import { ageRangeOptions, genderOptions } from "@/constants/plot";
+import { OptionType } from "@/constants/choices";
+import { CharacterProps } from "@/types/project";
 
 interface CreateCharacterModalProps {
   show: boolean;
   onClose: () => void;
+  roles: OptionType[];
   // Pre-set from the sidebar group the "+" was pressed in.
-  defaultRole?: CharacterRole;
+  defaultRole?: string;
   onCreate: (character: CharacterProps) => void;
 }
 
 export default function CreateCharacterModal({
   show,
   onClose,
+  roles,
   defaultRole,
   onCreate,
 }: CreateCharacterModalProps) {
 
   const [name, setName] = useState("");
-  const [role, setRole] = useState<CharacterRole>("supporting");
+  const [role, setRole] = useState("");
   const [ageRange, setAgeRange] = useState(ageRangeOptions[2].id);
   const [gender, setGender] = useState(genderOptions[0].id);
   const [description, setDescription] = useState("");
@@ -32,7 +35,7 @@ export default function CreateCharacterModal({
   useEffect(() => {
     if (!show) return;
     setName("");
-    setRole(defaultRole ?? "supporting");
+    setRole(defaultRole ?? roles[0]?.id ?? "");
     setAgeRange(ageRangeOptions[2].id);
     setGender(genderOptions[0].id);
     setDescription("");
@@ -93,8 +96,8 @@ export default function CreateCharacterModal({
           type="select"
           label="Role"
           value={role}
-          options={characterRoleOptions}
-          onChange={(value) => setRole(value as CharacterRole)}
+          options={roles}
+          onChange={setRole}
         />
 
         <div className={baseStyle.inlineRow}>

@@ -8,15 +8,21 @@ import { MdAutoAwesome, MdCheck, MdDelete, MdDownload, MdOutlineFolder, MdOutlin
 import { useProject } from "../project-context";
 import { dummyScriptVersions } from "@/constants/dummy/dummyVersions";
 import Screenplay from "../_components/Screenplay";
+import CreateSceneModal from "../_components/CreateSceneModal";
 import EmptyState from "@/components/local/EmptyState";
 import Modal from "@/components/local/Modal";
 import { Choice } from "@/components/design-system/Choice";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function Home() {
 
   const project = useProject()
   const [showRewrite, setShowRewrite] = useState<boolean>(false)
+  // Holds the highlighted script text while the New Scene dialog is open.
+  const [sceneFromSelection, setSceneFromSelection] = useState<string | undefined>(undefined)
+
+  // The empty state and the sidebar both open the same picker.
+  const scriptUpload = useRef<HTMLInputElement>(null)
 
   return (<div className={`wrapper grow items-start flex-row flex`}>
           
@@ -33,14 +39,33 @@ export default function Home() {
                 { id: "clear", label: "Clear script", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
             />
+            <input
+              ref={ scriptUpload }
+              type="file"
+              accept=".pdf,.doc,.docx,.txt,.fountain"
+              className="hidden"
+              onChange={ () => null }
+            />
+
             <div className="p-3">
-              { project.script ? <Screenplay script={ project.script  } /> : <EmptyState 
+              { project.script ? <Screenplay
+                  script={ project.script }
+                  onNewScene={ setSceneFromSelection }
+                /> : <EmptyState 
                 icon={ MdOutlineFolder }
                 title="There is no screenplay"
                 subtitle="You can upload a new screenplay or generate"
-                button={{ type: "Primary", label: "Upload", onClick: () => null }}
+                button={{ type: "Primary", icon: MdOutlineUploadFile, label: "Upload a script", onClick: () => scriptUpload.current?.click() }}
               /> }
             </div>
+
+            <CreateSceneModal
+              show={ sceneFromSelection !== undefined }
+              onClose={ () => setSceneFromSelection( undefined ) }
+              locations={ project.locations ?? [] }
+              defaultSynopsis={ sceneFromSelection }
+              onCreate={ () => null }
+            />
           </div>
 
 

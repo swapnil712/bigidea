@@ -90,13 +90,13 @@ export const previzBeatOptions: OptionType[] = [
 ];
 
 export const cameraMovementOptions: OptionType[] = [
-  { id: "static", label: "Static / Lock-off" },
+  { id: "static", label: "Static" },
   { id: "pan", label: "Pan" },
   { id: "tilt", label: "Tilt" },
   { id: "push-in", label: "Push In" },
   { id: "pull-out", label: "Pull Out" },
   { id: "track", label: "Tracking" },
-  { id: "crane", label: "Crane / Jib" },
+  { id: "crane", label: "Crane/Jib" },
   { id: "handheld", label: "Handheld" },
   { id: "steadicam", label: "Steadicam" },
   { id: "zoom", label: "Zoom" },
@@ -111,8 +111,33 @@ export const focalLengthOptions: OptionType[] = [
   { id: "135", label: "135mm" },
 ];
 
+export const locationCategoryOptions: OptionType[] = [
+  { id: "outdoor", label: "Outdoor" },
+  { id: "scenic", label: "Scenic" },
+  { id: "set", label: "Set Build" },
+  { id: "practical", label: "Practical Interior" },
+  { id: "water", label: "Water / Underwater" },
+];
+
+export const soundCategoryOptions: OptionType[] = [
+  { id: "sfx", label: "SFX" },
+  { id: "foley", label: "Foley" },
+  { id: "ambience", label: "Ambience" },
+  { id: "animal", label: "Animal Sounds" },
+  { id: "vocal", label: "Vocal / Group ADR" },
+  { id: "designed", label: "Designed Sound" },
+];
+
+export const musicCategoryOptions: OptionType[] = [
+  { id: "score", label: "Score" },
+  { id: "theme", label: "Character Theme" },
+  { id: "source", label: "Source / Diegetic" },
+  { id: "sting", label: "Sting" },
+  { id: "transition", label: "Transition" },
+];
+
 export const shotOptions: OptionType[] = [
-  { id: "mid", label: "Medium Closeup" },
-  { id: "close", label: "Closeup" },
+  { id: "mid", label: "MCU" },
+  { id: "close", label: "CU" },
   { id: "wide", label: "Wide" }
 ];

@@ -15,6 +15,8 @@ interface CreateSceneModalProps {
   locations: LocationProps[];
   // Pre-set from the sidebar group the "+" was pressed in.
   defaultScriptDay?: number;
+  // Seeds the synopsis — used when a scene is cut from a script selection.
+  defaultSynopsis?: string;
   onCreate: (scene: SceneProps) => void;
 }
 
@@ -23,6 +25,7 @@ export default function CreateSceneModal({
   onClose,
   locations,
   defaultScriptDay,
+  defaultSynopsis,
   onCreate,
 }: CreateSceneModalProps) {
 
@@ -38,7 +41,7 @@ export default function CreateSceneModal({
     setLocation(locations[0]?.id);
     setTime("day");
     setScriptDay(String(defaultScriptDay ?? 1));
-    setSynopsis("");
+    setSynopsis(defaultSynopsis ?? "");
   }, [show]);
 
   const create = () => {

@@ -46,6 +46,31 @@ export default function Home() {
   }))
 
 
+
+  // Nothing to hang a sidebar, header or form off until the script has been
+  // broken into scenes.
+  if ( !sceneList.length && !project.scenes?.length ) {
+    return <div className={ baseStyle.mainWrapper }>
+      <EmptyState
+        icon={ MdOutlineImage }
+        title="There are no scenes to previz"
+        subtitle="Scenes show up here once the script has been broken down."
+        button={{ type: "Primary", label: "Create a scene", onClick: () => setCreateScene( 1 ) }}
+      />
+
+      <CreateSceneModal
+        show={ createScene !== undefined }
+        onClose={ () => setCreateScene( undefined ) }
+        locations={ project.locations ?? [] }
+        defaultScriptDay={ createScene }
+        onCreate={ ( scene ) => {
+          setSceneList( prev => [ ...prev, scene ])
+          setActiveScene( scene.id )
+        }}
+      />
+    </div>
+  }
+
   return (<div className={`wrapper grow items-start flex-row flex`}>
 
 
@@ -78,10 +103,10 @@ export default function Home() {
               key={item.id}
               type="button"
               onClick={ () => setActiveScene( item.id) }
-              className={`${baseStyle.inlineRow} ${ item.id === activeScene ? "bg-zinc-900 font-bold text-indigo-400" : "" }
+              className={`${baseStyle.inlineRow} liftable ${ item.id === activeScene ? "bg-zinc-900 font-bold text-indigo-400" : "" }
                   cursor-pointer text-sm uppercase text-left p-2 rounded-lg hover:bg-zinc-700`}
             >
-              <MdDragHandle />
+              <span className="drag-handle"><MdDragHandle /></span>
               {item.intExt}. { locationName( item.location ) } - {item.time}
             </button>
           ))}

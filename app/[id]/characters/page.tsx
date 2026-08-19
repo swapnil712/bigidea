@@ -1,14 +1,16 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdContentCopy, MdDelete, MdOutlineCheckroom, MdOutlineInventory2, MdPersonOutline } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdContentCopy, MdDelete, MdOutlineCheckroom, MdOutlineInventory2, MdOutlineLabel, MdPersonOutline } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { CharacterProps, CharacterRole, CharacterWardrobeItem, PropProps, ReferenceImage } from "@/types/project";
+import { CharacterProps, CharacterWardrobeItem, PropProps, ReferenceImage } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
 import { ageRangeOptions, characterRoleOptions, genderOptions, wardrobeCategoryOptions } from "@/constants/plot";
+import { OptionType } from "@/constants/choices";
+import ManageCategoriesModal from "@/components/local/ManageCategoriesModal";
 import EmptyState from "@/components/local/EmptyState";
 import { toOptions } from "@/functions/toOptions";
 import { PickerGroup } from "@/components/local/MultiPicker";
@@ -41,13 +43,15 @@ export default function Home() {
   const [createWardrobe, setCreateWardrobe] = useState<string | undefined>(undefined)
   const [createProp, setCreateProp] = useState<string | undefined>(undefined)
   // Set to the role of whichever sidebar group's "+" was pressed.
-  const [createCharacter, setCreateCharacter] = useState<CharacterRole | undefined>(undefined)
+  const [createCharacter, setCreateCharacter] = useState<string | undefined>(undefined)
+  const [showRoles, setShowRoles] = useState(false)
 
   // Edits live here until there is somewhere to save them — keyed by character
   // id so switching characters keeps whatever was added to each one.
   const [kitEdits, setKitEdits] = useState<Record<string, CharacterKit>>({})
   const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
   const [characters, setCharacters] = useState<CharacterProps[]>([])
+  const [roles, setRoles] = useState<OptionType[]>( characterRoleOptions )
   const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
   const [propCatalogue, setPropCatalogue] = useState<PropProps[]>([])
 
@@ -143,13 +147,13 @@ export default function Home() {
         <div key={characterRole} className="flex flex-col">
 
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
-            <span>{ characterRoleOptions.find ( ix => ix.id === characterRole )?.label }</span>
+            <span>{ roles.find ( ix => ix.id === characterRole )?.label }</span>
             <div className="border-color border-t grow" />
             <Button
               icon={ MdAdd }
               size="Small"
               type="Tertiary"
-              onClick={ () => setCreateCharacter( characterRole as CharacterRole ) }
+              onClick={ () => setCreateCharacter( characterRole ) }
             />
           </div>
 
@@ -183,6 +187,7 @@ export default function Home() {
                 { icon: MdAutoAwesome, label: "Generate Looks", type: "Primary", onClick: () => null }
               ]}
               menu={[
+                { id: "roles", label: "Manage roles…", icon: MdOutlineLabel, onClick: () => setShowRoles( true ) },
                 { id: "duplicate", label: "Duplicate character", icon: MdContentCopy, onClick: () => null },
                 { id: "delete", label: "Delete character", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
@@ -212,7 +217,7 @@ export default function Home() {
                         <Input type="text" id="name" label="Name of the Character" value={ currentChar?.name }  />
                       </div>
 
-                      <Input type="select" id="role" label="Role" value={ currentChar?.role } options={ characterRoleOptions }  />
+                      <Input type="select" id="role" label="Role" value={ currentChar?.role } options={ roles }  />
 
                       <div className={ baseStyle.inlineRow }>
                         <Input type="select" id="ageRange" label="Age Range" value={ currentChar?.ageRange } options={ ageRangeOptions }  />
@@ -242,6 +247,13 @@ export default function Home() {
                           />
                         })}
 
+                        { kit.wardrobe.length === 0 && <EmptyState
+                          size="Small"
+                          icon={ MdOutlineCheckroom }
+                          title="No wardrobe yet"
+                          subtitle="What this character wears, so it stays consistent across scenes."
+                        /> }
+
                         <Button
                           type="Inline"
                           size="Small"
@@ -266,6 +278,13 @@ export default function Home() {
                             onRemove={ () => updateKit({ props: kit.props.filter( ix => ix !== itemId ) }) }
                           />
                         })}
+
+                        { kit.props.length === 0 && <EmptyState
+                          size="Small"
+                          icon={ MdOutlineInventory2 }
+                          title="No props yet"
+                          subtitle="Anything this character carries or handles on screen."
+                        /> }
 
                         <Button
                           type="Inline"
@@ -332,6 +351,7 @@ export default function Home() {
                         onClose={ () => setCreateWardrobe( undefined ) }
                         initialName={ createWardrobe }
                         characters={ characters }
+                        categories={ wardrobeCategoryOptions }
                         defaultCharacter={ activeChar }
                         onCreate={ ( item ) => {
                           setWardrobe( prev => [ ...prev, item ])
@@ -351,9 +371,21 @@ export default function Home() {
                         }}
                       />
 
+                      <ManageCategoriesModal
+                        show={ showRoles }
+                        onClose={ () => setShowRoles( false ) }
+                        title="Character Roles"
+                        term="role"
+                        noun="characters"
+                        categories={ roles }
+                        usedIds={ characters.map( ix => ix.role ) }
+                        onSave={ setRoles }
+                      />
+
                       <CreateCharacterModal
                         show={ createCharacter !== undefined }
                         onClose={ () => setCreateCharacter( undefined ) }
+                        roles={ roles }
                         defaultRole={ createCharacter }
                         onCreate={ ( character ) => {
                           setCharacters( prev => [ ...prev, character ])

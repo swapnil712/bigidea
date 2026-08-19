@@ -52,3 +52,31 @@ hr {
 .box {
   @apply flex justify-center items-center flex-col gap-2;
 }
+/* Rows carrying a drag handle lift while the handle is held down. Purely the
+   affordance — nothing repositions yet. */
+.liftable {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.drag-handle {
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.liftable:has(.drag-handle:active) {
+  transform: scale(1.015);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+  background: var(--color-dark);
+  border-radius: 0.5rem;
+  position: relative;
+  z-index: 20;
+}
+
+/* Selecting script text reads as picking out a scene, not as ordinary text. */
+.screenplay::selection {
+  background: var(--color-amber-200);
+  color: var(--color-zinc-900);
+}

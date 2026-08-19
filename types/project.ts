@@ -17,11 +17,8 @@ export type ScreenplayElementType =
   | "transition";
 
 
-export type CharacterRole = "protagonist" | "supporting" | "npc";
 export type ShotType = "mid" | "wide" | "close"
 export type CameraMovement = "static" | "pan" | "tilt" | "push-in" | "pull-out" | "track" | "crane" | "handheld" | "steadicam" | "zoom"
-export type WardrobeCategories = "everyday" | "formal" | "casual" | "action" | "uniform" | "sleepwear" | "special"
-export type AssetCategories = "prop" | "vehicle" | "weapon" | "set-dressing" | "tech" | "animal"
 
 
 export interface ProjectProps {
@@ -43,13 +40,16 @@ export interface ProjectProps {
   wardrobe?: CharacterWardrobeItem[],
   props?: PropProps[],
   assets?: AssetProps[],
+  sounds?: SoundProps[],
+  music?: MusicProps[],
   locations?: LocationProps[]
 }
 
 export interface CharacterProps {
   id: string;
   name: string;
-  role: CharacterRole;
+  // A role id from the project's (editable) character role list.
+  role: string;
   ageRange: string;
   gender: string;
   ethnicity: string;
@@ -66,7 +66,8 @@ export interface CharacterWardrobeItem {
   id: string;
   name: string;
   originCharacter: string;
-  category: WardrobeCategories;
+  // A category id from the project's (editable) wardrobe category list.
+  category: string;
   scenes?: SceneProps["id"][];
   referenceImages?: string[];
   description: string;
@@ -75,7 +76,8 @@ export interface CharacterWardrobeItem {
 export interface AssetProps {
   id: string;
   name: string;
-  category: AssetCategories;
+  // A category id from the project's (editable) asset category list.
+  category: string;
   description: string;
   originScene?: SceneProps["id"];
   quantity: number;
@@ -84,9 +86,49 @@ export interface AssetProps {
   referenceImages?: string[];
 }
 
+export interface SoundProps {
+  id: string;
+  name: string;
+  // A category id from the project's (editable) sound category list.
+  category: string;
+  description: string;
+  productionNotes: string;
+  audioUrl?: string;
+  scenes?: SceneProps["id"][];
+  referenceSounds?: string[];
+}
+
+export interface MusicProps {
+  id: string;
+  name: string;
+  // A category id from the project's (editable) music category list.
+  category: string;
+  prompt: string;
+  mood: string;
+  description: string;
+  audioUrl?: string;
+  scenes?: SceneProps["id"][];
+}
+
+export interface Collaborator {
+  id: string;
+  email: string;
+  // A role id from collaboratorRoleOptions.
+  role: string;
+  avatar?: string;
+}
+
+export interface ReferenceAudio {
+  id: string;
+  name: string;
+  url: string;
+}
+
 export interface LocationProps {
   id: string;
   name: string;
+  // A category id from the project's (editable) location category list.
+  category: string;
   region: string;
   description: string;
   productionNotes: string;

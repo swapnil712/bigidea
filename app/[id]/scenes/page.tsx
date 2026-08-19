@@ -89,6 +89,31 @@ export default function Home() {
     ]
   })
 
+
+  // Nothing to hang a sidebar, header or form off until the script has been
+  // broken into scenes.
+  if ( !sceneList.length && !project.scenes?.length ) {
+    return <div className={ baseStyle.mainWrapper }>
+      <EmptyState
+        icon={ MdOutlineViewAgenda }
+        title="There are no scenes"
+        subtitle="Break the script down into scenes, or add the first one yourself."
+        button={{ type: "Primary", label: "Create a scene", onClick: () => setCreateScene( 1 ) }}
+      />
+
+      <CreateSceneModal
+        show={ createScene !== undefined }
+        onClose={ () => setCreateScene( undefined ) }
+        locations={ project.locations ?? [] }
+        defaultScriptDay={ createScene }
+        onCreate={ ( scene ) => {
+          setSceneList( prev => [ ...prev, scene ])
+          setActiveScene( scene.id )
+        }}
+      />
+    </div>
+  }
+
   return (<div className={`wrapper grow items-start flex-row flex`}>
           
 
@@ -122,10 +147,10 @@ export default function Home() {
               key={item.id}
               type="button"
               onClick={ () => setActiveScene( item.id) }
-              className={`${baseStyle.inlineRow} ${ item.id === activeScene ? "bg-zinc-900 font-bold text-indigo-400" : "" } 
+              className={`${baseStyle.inlineRow} liftable ${ item.id === activeScene ? "bg-zinc-900 font-bold text-indigo-400" : "" } 
                   cursor-pointer text-sm uppercase text-left p-2 rounded-lg hover:bg-zinc-700`}
             >
-              <MdDragHandle />
+              <span className="drag-handle"><MdDragHandle /></span>
               {item.intExt}. { dummyLocations.find ( ix => ix.id === item.location )?.name } - {item.time}
             </button>
           ))}
@@ -278,8 +303,8 @@ export default function Home() {
                       <h2 className="font-bold mb-4">Shots Breakdown</h2>
 
                       { currentScene?.shots && currentScene?.shots.map((field) => (
-                        <div key={field.id} className={`${baseStyle.inlineRow} items-start mb-5`}>
-                            <Button type="Tertiary" size="Small" icon={MdDragHandle} />
+                        <div key={field.id} className={`${baseStyle.inlineRow} liftable items-start mb-5`}>
+                            <span className="drag-handle"><MdDragHandle size={ 24 } /></span>
                             <div className="grow flex flex-col border-b border-color pb-4">
                                 
                                 <div className={ baseStyle.inlineRow}>
@@ -292,16 +317,16 @@ export default function Home() {
                                   <Input
                                         type="select"
                                         size="G"
+                                        fit
                                         id={`select-${ field.id }`}
                                         value={ field.shotType }
                                         options={ shotOptions }
                                   />
-                                </div>
 
-                                <div className={ baseStyle.inlineRow}>
                                   <Input
                                         type="select"
                                         size="G"
+                                        fit
                                         id={`movement-${ field.id }`}
                                         value={ field.movement }
                                         options={ cameraMovementOptions }
@@ -309,6 +334,7 @@ export default function Home() {
                                   <Input
                                         type="select"
                                         size="G"
+                                        fit
                                         id={`focal-${ field.id }`}
                                         value={ field.focalLength }
                                         options={ focalLengthOptions }

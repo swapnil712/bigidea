@@ -47,10 +47,10 @@ export default function Page () {
         <div className="gap-6 flex flex-col max-w-200 mx-auto my-10">
            
            
-           { project.premise && premiseFields.map((field) => (
-                <div key={field.id} className={`${baseStyle.inlineRow} border-b border-color items-start`}>
-                    <Button type="Tertiary" icon={MdDragHandle} />
-                    <div className="grow py-3">
+           { premiseFields.map((field) => (
+                <div key={field.id} className={`${baseStyle.inlineRow} liftable border-b border-color items-start`}>
+                    <span className="drag-handle"><MdDragHandle size={ 24 } className="opacity-60" /></span>
+                    <div className="grow py-1">
                         <Input
                             type={field.type}
                             id={ field.id }

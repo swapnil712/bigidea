@@ -6,6 +6,7 @@ import Modal from "@/components/local/Modal";
 import MultiPicker, { PickerGroup } from "@/components/local/MultiPicker";
 import { Input } from "@/components/design-system/Input";
 import { toOptions } from "@/functions/toOptions";
+import { wardrobeCategoryOptions } from "@/constants/plot";
 import {
   CharacterLookInSceneProps,
   CharacterProps,
@@ -162,6 +163,7 @@ export default function AddCharacterModal({
         onClose={() => setCreateWardrobeName(undefined)}
         initialName={createWardrobeName}
         characters={characters}
+        categories={wardrobeCategoryOptions}
         defaultCharacter={characterId}
         onCreate={(item) => {
           onCreateWardrobe(item);

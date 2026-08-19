@@ -45,7 +45,9 @@ export const Button = ({
   const buttonContent = <> { Icon && <Icon size={ getSize === "Small" ? 18 : 20 } />}
   { label && <span>{label}</span>}</>
 
-  const buttonStyle = { className: `flex justify-center flex-row items-center cursor-pointer ${ stretch ? "grow w-full" : "" } ${ typeClass } ${sizeStyles[getSize]}` }
+  const disabledStyle = disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+
+  const buttonStyle = { className: `flex justify-center flex-row items-center ${ disabledStyle } ${ stretch ? "grow w-full" : "" } ${ typeClass } ${sizeStyles[getSize]}` }
 
 
       return href ? (
@@ -53,7 +55,7 @@ export const Button = ({
           {...(!disabled && { href })}
           aria-disabled={disabled || undefined}
           {...buttonStyle}
-          className={`${buttonStyle.className} ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+          className={`${buttonStyle.className} ${disabled ? "pointer-events-none" : ""}`}
         >
           {buttonContent}
         </a>

@@ -1,14 +1,16 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdContentCopy, MdDelete, MdOutlineDryCleaning, MdOutlineViewAgenda, MdPersonOutline } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdContentCopy, MdDelete, MdOutlineDryCleaning, MdOutlineLabel, MdOutlineViewAgenda } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { CharacterWardrobeItem, ReferenceImage, WardrobeCategories } from "@/types/project";
+import { CharacterWardrobeItem, ReferenceImage } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
 import { wardrobeCategoryOptions } from "@/constants/plot";
+import { OptionType } from "@/constants/choices";
+import ManageCategoriesModal from "@/components/local/ManageCategoriesModal";
 import EmptyState from "@/components/local/EmptyState";
 import { toOptions } from "@/functions/toOptions";
 import { sceneLabel } from "@/functions/sceneLabel";
@@ -22,13 +24,15 @@ export default function Home() {
   const [activeItem, setActiveItem] = useState<string | undefined>(undefined)
   const [showAddScene, setShowAddScene] = useState(false)
   // Set to the category of whichever sidebar group's "+" was pressed.
-  const [createItem, setCreateItem] = useState<WardrobeCategories | undefined>(undefined)
+  const [createItem, setCreateItem] = useState<string | undefined>(undefined)
+  const [showCategories, setShowCategories] = useState(false)
 
   // Edits live here until there is somewhere to save them — keyed by item id so
   // switching items keeps whatever was added to each one.
   const [sceneEdits, setSceneEdits] = useState<Record<string, string[]>>({})
   const [images, setImages] = useState<Record<string, ReferenceImage[]>>({})
   const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
+  const [categories, setCategories] = useState<OptionType[]>( wardrobeCategoryOptions )
 
   const project = useProject()
 
@@ -85,13 +89,13 @@ export default function Home() {
 
 
           <div className={`${baseStyle.inlineRow} justify-between text-sm font-bold opacity-60 px-3 py-1`}>
-            <span>{ wardrobeCategoryOptions.find ( ix => ix.id === wardrobeCategory )?.label }</span>
+            <span>{ categories.find ( ix => ix.id === wardrobeCategory )?.label }</span>
             <div className="border-color border-t grow" />
             <Button
               icon={ MdAdd }
               size="Small"
               type="Tertiary"
-              onClick={ () => setCreateItem( wardrobeCategory as WardrobeCategories ) }
+              onClick={ () => setCreateItem( wardrobeCategory ) }
             />
           </div>
 
@@ -125,6 +129,7 @@ export default function Home() {
                 { icon: MdAutoAwesome, label: "Generate Reference", type: "Primary", onClick: () => null },
               ]}
               menu={[
+                { id: "categories", label: "Manage categories…", icon: MdOutlineLabel, onClick: () => setShowCategories( true ) },
                 { id: "duplicate", label: "Duplicate item", icon: MdContentCopy, onClick: () => null },
                 { id: "delete", label: "Delete item", icon: MdDelete, tone: "Danger", separated: true, onClick: () => null }
               ]}
@@ -154,7 +159,7 @@ export default function Home() {
                       </div>
 
                       <div className={ baseStyle.inlineRow }>
-                        <Input type="select" id="category" label="Category" value={ currentItem?.category } options={ wardrobeCategoryOptions }  />
+                        <Input type="select" id="category" label="Category" value={ currentItem?.category } options={ categories }  />
                         <Input type="select" id="originCharacter" label="Belongs to" value={ currentItem?.originCharacter } options={ characterOptions }  />
                       </div>
 
@@ -177,6 +182,13 @@ export default function Home() {
                             onRemove={ () => updateScenes( scenes.filter( ix => ix !== sceneId )) }
                           />
                         })}
+
+                        { scenes.length === 0 && <EmptyState
+                          size="Small"
+                          icon={ MdOutlineViewAgenda }
+                          title="Not in any scene yet"
+                          subtitle="Track where this item appears so it carries through to the shot list."
+                        /> }
 
                         <Button
                           type="Inline"
@@ -208,10 +220,21 @@ export default function Home() {
                         onAdd={ ( ids ) => updateScenes([ ...scenes, ...ids ]) }
                       />
 
+                      <ManageCategoriesModal
+                        show={ showCategories }
+                        onClose={ () => setShowCategories( false ) }
+                        title="Wardrobe Categories"
+                        noun="wardrobe items"
+                        categories={ categories }
+                        usedIds={ wardrobe.map( ix => ix.category ) }
+                        onSave={ setCategories }
+                      />
+
                       <CreateWardrobeModal
                         show={ createItem !== undefined }
                         onClose={ () => setCreateItem( undefined ) }
                         characters={ project.characters ?? [] }
+                        categories={ categories }
                         defaultCategory={ createItem }
                         onCreate={ ( item ) => {
                           setWardrobe( prev => [ ...prev, item ])

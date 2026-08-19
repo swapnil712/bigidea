@@ -1,6 +1,8 @@
 import { dummyAssets } from "./dummyAssets";
 import { dummyCharacters } from "./dummyCharacters";
 import { dummyLocations } from "./dummyLocations";
+import { dummyMusic } from "./dummyMusic";
+import { dummySounds } from "./dummySounds";
 import { dummyScenes } from "./dummyScene";
 import { dummyProps } from "./dummyProps";
 import { dummyScreenplayElements } from "./dummyScript";
@@ -46,6 +48,8 @@ export const dummyProjects: ProjectProps[] = [
     wardrobe: dummyWardrobes,
     props: dummyProps,
     assets: dummyAssets,
+    sounds: dummySounds,
+    music: dummyMusic,
     locations: dummyLocations
   },
   {

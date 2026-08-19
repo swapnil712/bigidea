@@ -31,12 +31,12 @@ export default function PrevizRow({
   const aspectClass = aspectStyles[aspectRatio] ?? aspectStyles["16-9"];
 
   return (
-    <div className="wrapper p-3 flex flex-col gap-3">
+    <div className="wrapper liftable p-3 flex flex-col gap-3">
 
       <div className={`${baseStyle.inlineRow} justify-between`}>
 
         <div className={baseStyle.inlineRow}>
-          <MdDragHandle className="opacity-40" />
+          <span className="drag-handle"><MdDragHandle className="opacity-40" /></span>
           <span className="text-sm font-bold uppercase">{index + 1}. {shot.label}</span>
           <Capsule type="Tag" label={shotOptions.find((ix) => ix.id === shot.shotType)?.label ?? shot.shotType} />
         </div>

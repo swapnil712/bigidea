@@ -1,18 +1,30 @@
 import { IconType } from "react-icons"
-import { ButtonProps } from "../design-system/Button"
+import { Button, ButtonProps } from "../design-system/Button"
+
+type EmptySize = "Regular" | "Small"
 
 interface EmptyProps {
     icon: IconType,
     title: string,
-    subtitle: string,
+    subtitle?: string,
+    // "Small" sits inside a panel section rather than filling a page.
+    size?: EmptySize,
     button?: ButtonProps
 }
 
-export default function EmptyState ( { icon, title, subtitle, button } : EmptyProps) {
+const sizeStyles: Record<EmptySize, { wrap: string; icon: number; title: string }> = {
+    Regular: { wrap: "py-10 gap-2", icon: 48, title: "font-bold" },
+    Small: { wrap: "py-6 gap-1", icon: 28, title: "font-bold text-sm" }
+}
+
+export default function EmptyState ( { icon, title, subtitle, size, button } : EmptyProps) {
     const Icon = icon
-    return <div className="text-center py-10 flex flex-col gap-2">
-        <Icon size={ 48 } className="mx-auto" />
-        <p className="font-bold">{ title }</p>
-        <p className="opacity-60 text-sm">{ subtitle }</p>
+    const style = sizeStyles[ size || "Regular" ]
+
+    return <div className={`text-center flex flex-col ${ style.wrap }`}>
+        <Icon size={ style.icon } className="mx-auto opacity-60" />
+        <p className={ style.title }>{ title }</p>
+        { subtitle && <p className="opacity-60 text-sm">{ subtitle }</p> }
+        { button && <div className="flex justify-center mt-2"><Button {...button} /></div> }
     </div>
 }

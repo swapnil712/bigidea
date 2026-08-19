@@ -1,39 +1,37 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { MdOutlineRoom } from "react-icons/md";
+import { MdOutlineVolumeUp } from "react-icons/md";
 import Modal from "@/components/local/Modal";
 import { Input } from "@/components/design-system/Input";
 import { OptionType } from "@/constants/choices";
-import { LocationProps } from "@/types/project";
+import { SoundProps } from "@/types/project";
 
-interface CreateLocationModalProps {
+interface CreateSoundModalProps {
   show: boolean;
   onClose: () => void;
   categories: OptionType[];
   // Pre-set from the sidebar group the "+" was pressed in.
   defaultCategory?: string;
-  onCreate: (location: LocationProps) => void;
+  onCreate: (sound: SoundProps) => void;
 }
 
-export default function CreateLocationModal({
+export default function CreateSoundModal({
   show,
   onClose,
   categories,
   defaultCategory,
   onCreate,
-}: CreateLocationModalProps) {
+}: CreateSoundModalProps) {
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
-  const [region, setRegion] = useState("");
   const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (!show) return;
     setName("");
     setCategory(defaultCategory ?? categories[0]?.id ?? "");
-    setRegion("");
     setDescription("");
   }, [show]);
 
@@ -41,13 +39,13 @@ export default function CreateLocationModal({
     if (!name.trim()) return;
 
     onCreate({
-      id: `loc-${Date.now()}`,
+      id: `snd-${Date.now()}`,
       name: name.trim(),
       category,
-      region: region.trim(),
       description: description.trim(),
       productionNotes: "",
-      referenceImages: [],
+      scenes: [],
+      referenceSounds: [],
     });
 
     onClose();
@@ -57,13 +55,13 @@ export default function CreateLocationModal({
     <Modal
       show={show}
       size="S"
-      icon={MdOutlineRoom}
-      title="Add a Location"
+      icon={MdOutlineVolumeUp}
+      title="Add a Sound"
       onClose={onClose}
       buttons={[
         {
-          label: "Create Location",
-          icon: MdOutlineRoom,
+          label: "Create Sound",
+          icon: MdOutlineVolumeUp,
           type: "Primary",
           stretch: true,
           onClick: create,
@@ -73,16 +71,16 @@ export default function CreateLocationModal({
       <div className="flex flex-col gap-4">
 
         <Input
-          id="newLocationName"
+          id="newSoundName"
           type="text"
-          label="Name of the Location"
-          placeholder="Mangrove Channels"
+          label="Name of the Sound"
+          placeholder="Reef Ambience — Dawn"
           value={name}
           onChange={setName}
         />
 
         <Input
-          id="newLocationCategory"
+          id="newSoundCategory"
           type="select"
           label="Category"
           value={category}
@@ -91,17 +89,7 @@ export default function CreateLocationModal({
         />
 
         <Input
-          id="newLocationRegion"
-          type="text"
-          label="Region"
-          hint="(optional)"
-          placeholder="Inland waterway behind the cayes"
-          value={region}
-          onChange={setRegion}
-        />
-
-        <Input
-          id="newLocationDescription"
+          id="newSoundDescription"
           type="textarea"
           label="Description"
           hint="(optional)"

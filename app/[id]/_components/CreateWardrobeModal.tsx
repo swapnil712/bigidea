@@ -5,8 +5,8 @@ import { MdOutlineCheckroom } from "react-icons/md";
 import Modal from "@/components/local/Modal";
 import { Input } from "@/components/design-system/Input";
 import { toOptions } from "@/functions/toOptions";
-import { wardrobeCategoryOptions } from "@/constants/plot";
-import { CharacterProps, CharacterWardrobeItem, WardrobeCategories } from "@/types/project";
+import { OptionType } from "@/constants/choices";
+import { CharacterProps, CharacterWardrobeItem } from "@/types/project";
 
 interface CreateWardrobeModalProps {
   show: boolean;
@@ -15,7 +15,8 @@ interface CreateWardrobeModalProps {
   initialName?: string;
   characters: CharacterProps[];
   defaultCharacter?: string;
-  defaultCategory?: WardrobeCategories;
+  categories: OptionType[];
+  defaultCategory?: string;
   onCreate: (item: CharacterWardrobeItem) => void;
 }
 
@@ -25,19 +26,20 @@ export default function CreateWardrobeModal({
   initialName,
   characters,
   defaultCharacter,
+  categories,
   defaultCategory,
   onCreate,
 }: CreateWardrobeModalProps) {
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<WardrobeCategories>("everyday");
+  const [category, setCategory] = useState("");
   const [originCharacter, setOriginCharacter] = useState<string | undefined>(undefined);
   const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (!show) return;
     setName(initialName ?? "");
-    setCategory(defaultCategory ?? "everyday");
+    setCategory(defaultCategory ?? categories[0]?.id ?? "");
     setOriginCharacter(defaultCharacter ?? characters[0]?.id);
     setDescription("");
   }, [show]);
@@ -89,8 +91,8 @@ export default function CreateWardrobeModal({
           type="select"
           label="Category"
           value={category}
-          options={wardrobeCategoryOptions}
-          onChange={(value) => setCategory(value as WardrobeCategories)}
+          options={categories}
+          onChange={setCategory}
         />
 
         <Input

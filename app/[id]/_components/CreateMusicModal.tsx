@@ -1,53 +1,53 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { MdOutlineRoom } from "react-icons/md";
+import { MdOutlineMusicNote } from "react-icons/md";
 import Modal from "@/components/local/Modal";
 import { Input } from "@/components/design-system/Input";
 import { OptionType } from "@/constants/choices";
-import { LocationProps } from "@/types/project";
+import { MusicProps } from "@/types/project";
 
-interface CreateLocationModalProps {
+interface CreateMusicModalProps {
   show: boolean;
   onClose: () => void;
   categories: OptionType[];
   // Pre-set from the sidebar group the "+" was pressed in.
   defaultCategory?: string;
-  onCreate: (location: LocationProps) => void;
+  onCreate: (track: MusicProps) => void;
 }
 
-export default function CreateLocationModal({
+export default function CreateMusicModal({
   show,
   onClose,
   categories,
   defaultCategory,
   onCreate,
-}: CreateLocationModalProps) {
+}: CreateMusicModalProps) {
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
-  const [region, setRegion] = useState("");
-  const [description, setDescription] = useState("");
+  const [mood, setMood] = useState("");
+  const [prompt, setPrompt] = useState("");
 
   useEffect(() => {
     if (!show) return;
     setName("");
     setCategory(defaultCategory ?? categories[0]?.id ?? "");
-    setRegion("");
-    setDescription("");
+    setMood("");
+    setPrompt("");
   }, [show]);
 
   const create = () => {
     if (!name.trim()) return;
 
     onCreate({
-      id: `loc-${Date.now()}`,
+      id: `mus-${Date.now()}`,
       name: name.trim(),
       category,
-      region: region.trim(),
-      description: description.trim(),
-      productionNotes: "",
-      referenceImages: [],
+      mood: mood.trim(),
+      prompt: prompt.trim(),
+      description: "",
+      scenes: [],
     });
 
     onClose();
@@ -57,13 +57,13 @@ export default function CreateLocationModal({
     <Modal
       show={show}
       size="S"
-      icon={MdOutlineRoom}
-      title="Add a Location"
+      icon={MdOutlineMusicNote}
+      title="Add a Track"
       onClose={onClose}
       buttons={[
         {
-          label: "Create Location",
-          icon: MdOutlineRoom,
+          label: "Create Track",
+          icon: MdOutlineMusicNote,
           type: "Primary",
           stretch: true,
           onClick: create,
@@ -73,16 +73,16 @@ export default function CreateLocationModal({
       <div className="flex flex-col gap-4">
 
         <Input
-          id="newLocationName"
+          id="newMusicName"
           type="text"
-          label="Name of the Location"
-          placeholder="Mangrove Channels"
+          label="Name of the Track"
+          placeholder="Mangrove Pursuit"
           value={name}
           onChange={setName}
         />
 
         <Input
-          id="newLocationCategory"
+          id="newMusicCategory"
           type="select"
           label="Category"
           value={category}
@@ -91,22 +91,23 @@ export default function CreateLocationModal({
         />
 
         <Input
-          id="newLocationRegion"
+          id="newMusicMood"
           type="text"
-          label="Region"
+          label="Mood"
           hint="(optional)"
-          placeholder="Inland waterway behind the cayes"
-          value={region}
-          onChange={setRegion}
+          placeholder="Urgent, airless"
+          value={mood}
+          onChange={setMood}
         />
 
         <Input
-          id="newLocationDescription"
+          id="newMusicPrompt"
           type="textarea"
-          label="Description"
+          label="Prompt"
           hint="(optional)"
-          value={description}
-          onChange={setDescription}
+          placeholder="Describe the instrumentation, tempo and feel…"
+          value={prompt}
+          onChange={setPrompt}
         />
 
       </div>

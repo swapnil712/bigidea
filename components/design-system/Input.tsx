@@ -30,6 +30,9 @@ interface InputProps {
   prefix?: string;
   suffix?: string;
   placeholder?: string;
+  // Sizes to its own content instead of sharing the row evenly, so a select
+  // sitting next to a text field only takes the width its options need.
+  fit?: boolean;
   value?: string | number;
   onChange?: (value: string) => void;
   onClick?: () => void;
@@ -53,6 +56,7 @@ export const Input = ({
   prefix,
   options,
   placeholder,
+  fit,
   value,
   onChange,
 }: InputProps) => {
@@ -61,15 +65,15 @@ export const Input = ({
 
   const wrapLines = size === "G" ? "text-md border-transparent hover:border-zinc-700 group-focus-within:border-zinc-500" : "border-color group-focus-within:border-zinc-400!"
 
-  const wrapperStyle = `${ wrapLines } ${ sizeStyles[isSize] } p-1 border-1 flex flex-row items-center rounded-sm text-md grow gap-1`;
-  const preSuf = "opacity-60";
+  const wrapperStyle = `${ wrapLines } ${ sizeStyles[isSize] } p-1 border-1 flex flex-row items-center rounded-sm text-md ${ fit ? "" : "grow" } gap-1`;
+  const preSuf = "text-sm opacity-50";
 
 
   const sharedInputProps = {
     placeholder,
     defaultValue: value,
     id,
-    className: "outline-0 w-full text-sm",
+    className: `outline-0 text-sm ${ fit ? "w-auto" : "w-full" }`,
     onChange: (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => onChange?.(e.target.value),
@@ -111,16 +115,16 @@ export const Input = ({
   }
 
   return (
-    <div className={`${baseStyle.inlineCol} group gap-1! grow w-full`}>
+    <div className={`${baseStyle.inlineCol} group gap-1! ${ fit ? "w-auto shrink-0" : "grow w-full" }`}>
 
       {label && (
         <label htmlFor={ id } className={baseStyle.inlineRow}>
-          <span className="text-sm">{label}</span>
+          <span className="text-sm opacity-80">{label}</span>
           {hint && <span className={ preSuf }>{hint}</span>}
         </label>
       )}
 
-      <div className={`${wrapperStyle} flex flex-row w-full`}>{renderable}</div>
+      <div className={`${wrapperStyle} flex flex-row ${ fit ? "" : "w-full" }`}>{renderable}</div>
 
     </div>
   );

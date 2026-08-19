@@ -3,6 +3,7 @@ import { LocationProps } from "@/types/project";
 export const dummyLocations: LocationProps[] = [
   {
     id: "loc-1",
+    category: "water",
     name: "Belize Coastal Waters",
     region: "Restricted reef zone, 4km offshore",
     description:
@@ -13,6 +14,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-2",
+    category: "scenic",
     name: "Mangrove Channels",
     region: "Inland waterway behind the cayes",
     description:
@@ -23,6 +25,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-3",
+    category: "outdoor",
     name: "Fishing Village Dock",
     region: "Coastal town, southern approach",
     description:
@@ -33,6 +36,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-4",
+    category: "practical",
     name: "Sam's Rented Room",
     region: "Coastal town guesthouse",
     description:
@@ -43,6 +47,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-5",
+    category: "outdoor",
     name: "Research Vessel Deck",
     region: "Company vessel, open water",
     description:
@@ -53,6 +58,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-6",
+    category: "set",
     name: "Vessel Interior — Lab",
     region: "Company vessel, below deck",
     description:
@@ -63,6 +69,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-7",
+    category: "practical",
     name: "Dani's Field Station",
     region: "Reef research outpost",
     description:
@@ -73,6 +80,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-8",
+    category: "set",
     name: "Interrogation Room",
     region: "Unmarked building, town outskirts",
     description:
@@ -83,6 +91,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-9",
+    category: "water",
     name: "Reef Floor",
     region: "Underwater, restricted zone",
     description:
@@ -93,6 +102,7 @@ export const dummyLocations: LocationProps[] = [
   },
   {
     id: "loc-10",
+    category: "scenic",
     name: "Coastal Highway",
     region: "Two-lane road along the shoreline",
     description:

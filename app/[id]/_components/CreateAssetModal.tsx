@@ -5,33 +5,35 @@ import { MdOutlineAddBox } from "react-icons/md";
 import Modal from "@/components/local/Modal";
 import { Input } from "@/components/design-system/Input";
 import { baseStyle } from "@/constants/styles";
-import { assetCategoryOptions } from "@/constants/plot";
-import { AssetCategories, AssetProps } from "@/types/project";
+import { OptionType } from "@/constants/choices";
+import { AssetProps } from "@/types/project";
 
 interface CreateAssetModalProps {
   show: boolean;
   onClose: () => void;
+  categories: OptionType[];
   // Pre-set from the sidebar group the "+" was pressed in.
-  defaultCategory?: AssetCategories;
+  defaultCategory?: string;
   onCreate: (asset: AssetProps) => void;
 }
 
 export default function CreateAssetModal({
   show,
   onClose,
+  categories,
   defaultCategory,
   onCreate,
 }: CreateAssetModalProps) {
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<AssetCategories>("prop");
+  const [category, setCategory] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (!show) return;
     setName("");
-    setCategory(defaultCategory ?? "prop");
+    setCategory(defaultCategory ?? categories[0]?.id ?? "");
     setQuantity("1");
     setDescription("");
   }, [show]);
@@ -87,8 +89,8 @@ export default function CreateAssetModal({
             type="select"
             label="Category"
             value={category}
-            options={assetCategoryOptions}
-            onChange={(value) => setCategory(value as AssetCategories)}
+            options={categories}
+            onChange={setCategory}
           />
           <Input
             id="newAssetQuantity"
