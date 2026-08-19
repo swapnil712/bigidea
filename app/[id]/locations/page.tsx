@@ -139,6 +139,17 @@ export default function Home() {
 
                     <div className="p-5 gap-5 flex flex-col max-w-200 mx-auto">
 
+                      
+                      <div className={ baseStyle.inlineRow }>
+
+                        <div className="wrapper box w-full h-102">
+                          Environment
+                          <Button size="Small" type="Secondary" label="Generate" onClick={ () => null } />
+                        </div>
+
+                      </div>
+
+
                       <div className={ baseStyle.inlineRow }>
                         <Input type="text" id="name" label="Name of the Location" value={ currentLocation?.name }  />
                       </div>

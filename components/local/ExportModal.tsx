@@ -88,7 +88,6 @@ export default function ExportModal({ show, onClose, scenes, locations, aspectRa
   return (
     <Modal
       show={show}
-      size="S"
       icon={MdOutlineFileUpload}
       title="Export"
       onClose={cancel}
@@ -120,13 +119,12 @@ export default function ExportModal({ show, onClose, scenes, locations, aspectRa
 
       ) : (
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-row items-start gap-3">
 
-          <section className="flex flex-col gap-1">
-            <h3 className="font-bold">Select Clips to Export</h3>
+          <section className="flex flex-col h-100 overflow-y-scroll grow gap-1">
 
-            {clips.map(({ scene, shots }) => (
-              <div key={scene.id} className={`${baseStyle.inlineRow} ${shots ? "" : "opacity-40"}`}>
+            <div className="wrapper p-4 gap-2 flex flex-col">{clips.map(({ scene, shots }) => (
+              <div key={scene.id} className={`border-b border-color  ${baseStyle.inlineRow} ${shots ? "" : "opacity-40"}`}>
                 <div className="grow">
                   <Choice
                     id={`clip-${scene.id}`}
@@ -141,10 +139,11 @@ export default function ExportModal({ show, onClose, scenes, locations, aspectRa
 
                 {!shots && <MdWarningAmber className="text-amber-400 shrink-0" />}
               </div>
-            ))}
+            ))}</div>
           </section>
 
-          <Input
+          <section className="flex flex-col grow w-1/3 gap-1">
+            <Input
             id="exportResolution"
             type="select"
             label="Resolution"
@@ -153,12 +152,11 @@ export default function ExportModal({ show, onClose, scenes, locations, aspectRa
             onChange={pickResolution}
           />
 
-          <div className={baseStyle.inlineRow}>
+
             <Input id="exportFormat" type="select" label="Format" value={format} options={videoFormatOptions} onChange={setFormat} />
             <Input id="exportFrameRate" type="select" label="Frame Rate" value={frameRate} options={frameRateOptions} onChange={setFrameRate} />
-          </div>
 
-          <section className="flex flex-col gap-2">
+          <section className="flex flex-col gap-2 mt-3">
             <p className={baseStyle.inlineRow}>
               <span className="font-bold">Dimensions</span>
               <span className="opacity-60 text-sm">{aspectLabel} · {frameRate}fps</span>
@@ -169,6 +167,7 @@ export default function ExportModal({ show, onClose, scenes, locations, aspectRa
               <Button type="Tertiary" size="Small" icon={MdSwapHoriz} onClick={swap} />
               <Input id="exportHeight" type="number" prefix="H" value={height} onChange={setHeight} />
             </div>
+          </section>
           </section>
 
         </div>

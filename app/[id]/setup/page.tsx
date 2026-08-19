@@ -82,7 +82,7 @@ export default function Home() {
               </div>
             </form>
 
-            <Modal show={ showRewrite } icon={ MdAutoAwesome } onClose={ () => setShowRewrite(false) } title="Re-write with AI">
+            <Modal show={ showRewrite } size="S" icon={ MdAutoAwesome } onClose={ () => setShowRewrite(false) } title="Re-write with AI">
               <p>What do you want to do with the script?</p>
               <Choice type="Radio" id="what_to_do"
                   label="Rewrite entirely"

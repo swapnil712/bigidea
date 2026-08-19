@@ -1,14 +1,17 @@
 "use client"
 
 import { SectionHeader } from "@/components/local/SectionHeader";
-import { MdAdd, MdAutoAwesome, MdCheck, MdContentCopy, MdDelete, MdDragHandle, MdOutlineViewAgenda, MdOutlineViewCarousel, MdUnfoldMore } from "react-icons/md";
+import { MdAdd, MdAutoAwesome, MdCheck, MdContentCopy, MdDelete, MdDragHandle, MdOutlineMusicNote, MdOutlineViewAgenda, MdOutlineViewCarousel, MdOutlineVolumeUp, MdUnfoldMore } from "react-icons/md";
 import { useProject } from "../project-context";
 import { baseStyle } from "@/constants/styles";
-import { CharacterLookInSceneProps, CharacterWardrobeItem, PropProps, SceneProps, Shot } from "@/types/project";
+import { CharacterLookInSceneProps, CharacterWardrobeItem, MusicProps, PropProps, SceneProps, Shot, SoundProps } from "@/types/project";
 import { Button } from "@/components/design-system/Button";
 import { useEffect, useState } from "react";
 import { Input } from "@/components/design-system/Input";
-import { cameraMovementOptions, focalLengthOptions, intExtOptions, sceneSourceOptions, shotOptions, timeOfDayOptions } from "@/constants/plot";
+import { cameraMovementOptions, focalLengthOptions, intExtOptions, musicCategoryOptions, sceneSourceOptions, shotOptions, soundCategoryOptions, timeOfDayOptions } from "@/constants/plot";
+import { OptionType } from "@/constants/choices";
+import AddToListModal from "@/components/local/AddToListModal";
+import { PickerGroup } from "@/components/local/MultiPicker";
 import EmptyState from "@/components/local/EmptyState";
 import { toOptions } from "@/functions/toOptions";
 import { dummyLocations } from "@/constants/dummy/dummyLocations";
@@ -29,6 +32,10 @@ export default function Home() {
   const [showAddCharacter, setShowAddCharacter] = useState(false)
   const [showAddProp, setShowAddProp] = useState(false)
   const [showAddShot, setShowAddShot] = useState(false)
+  const [showAddSound, setShowAddSound] = useState(false)
+  const [showAddMusic, setShowAddMusic] = useState(false)
+  const [soundPicks, setSoundPicks] = useState<string[]>([])
+  const [musicPicks, setMusicPicks] = useState<string[]>([])
   // Set to the script day of whichever sidebar group's "+" was pressed.
   const [createScene, setCreateScene] = useState<number | undefined>(undefined)
 
@@ -38,6 +45,13 @@ export default function Home() {
   const [sceneList, setSceneList] = useState<SceneProps[]>([])
   const [wardrobe, setWardrobe] = useState<CharacterWardrobeItem[]>([])
   const [propCatalogue, setPropCatalogue] = useState<PropProps[]>([])
+  const [sounds, setSounds] = useState<SoundProps[]>([])
+  const [music, setMusic] = useState<MusicProps[]>([])
+
+  // Sound and music store the scenes they play in, so this side reads that link
+  // rather than keeping a second copy on the scene.
+  const [soundEdits, setSoundEdits] = useState<Record<string, string[]>>({})
+  const [musicEdits, setMusicEdits] = useState<Record<string, string[]>>({})
 
   const project = useProject()
 
@@ -51,6 +65,8 @@ export default function Home() {
     setSceneList( project.scenes ?? [] )
     setWardrobe( project.wardrobe ?? [] )
     setPropCatalogue( project.props ?? [] )
+    setSounds( project.sounds ?? [] )
+    setMusic( project.music ?? [] )
   }, [ project ])
 
 
@@ -67,6 +83,28 @@ export default function Home() {
     if ( !activeScene ) return
     setCastEdits( prev => ({ ...prev, [ activeScene ]: { ...cast, ...next } }))
   }
+
+  const sceneSounds = ( activeScene ? soundEdits[ activeScene ] : undefined )
+    ?? sounds.filter( ix => ix.scenes?.includes( activeScene ?? "" )).map( ix => ix.id )
+
+  const sceneMusic = ( activeScene ? musicEdits[ activeScene ] : undefined )
+    ?? music.filter( ix => ix.scenes?.includes( activeScene ?? "" )).map( ix => ix.id )
+
+  const updateSounds = ( next: string[] ) => activeScene && setSoundEdits( prev => ({ ...prev, [ activeScene ]: next }))
+  const updateMusic = ( next: string[] ) => activeScene && setMusicEdits( prev => ({ ...prev, [ activeScene ]: next }))
+
+  // One picker group per category, minus whatever is already in the scene.
+  const categoryGroups = <T extends { id: string; name: string; category: string }>(
+    items: T[],
+    taken: string[],
+    options: OptionType[]
+  ): PickerGroup[] => options
+    .map(( option ) => ({
+      id: option.id,
+      label: option.label,
+      options: toOptions( items.filter( ix => ix.category === option.id && !taken.includes( ix.id )))
+    }))
+    .filter(( group ) => group.options.length > 0 )
 
   const wardrobeName = ( id: string ) => wardrobe.find( ix => ix.id === id )?.name ?? id
   const propName = ( id: string ) => propCatalogue.find( ix => ix.id === id )?.name ?? id
@@ -261,6 +299,70 @@ export default function Home() {
                       </section>
 
 
+                      <section className="flex flex-col gap-2">
+                        <h3 className="panel-heading">Sounds</h3>
+
+                        { sceneSounds.map(( soundId ) => {
+                          const sound = sounds.find( ix => ix.id === soundId )
+
+                          return <SceneCastRow
+                            key={ soundId }
+                            icon={ MdOutlineVolumeUp }
+                            title={ sound?.name ?? soundId }
+                            subtitle={ soundCategoryOptions.find( ix => ix.id === sound?.category )?.label }
+                            onRemove={ () => updateSounds( sceneSounds.filter( ix => ix !== soundId )) }
+                          />
+                        })}
+
+                        { sceneSounds.length === 0 && <EmptyState
+                          size="Small"
+                          icon={ MdOutlineVolumeUp }
+                          title="No sounds in this scene"
+                          subtitle="Effects, foley and ambience heard while this scene plays."
+                        /> }
+
+                        <Button
+                          type="Inline"
+                          size="Small"
+                          icon={ MdAdd }
+                          label="Add sound to scene"
+                          onClick={ () => { setSoundPicks([]); setShowAddSound( true ) } }
+                        />
+                      </section>
+
+
+                      <section className="flex flex-col gap-2">
+                        <h3 className="panel-heading">Music</h3>
+
+                        { sceneMusic.map(( trackId ) => {
+                          const track = music.find( ix => ix.id === trackId )
+
+                          return <SceneCastRow
+                            key={ trackId }
+                            icon={ MdOutlineMusicNote }
+                            title={ track?.name ?? trackId }
+                            subtitle={ musicCategoryOptions.find( ix => ix.id === track?.category )?.label }
+                            onRemove={ () => updateMusic( sceneMusic.filter( ix => ix !== trackId )) }
+                          />
+                        })}
+
+                        { sceneMusic.length === 0 && <EmptyState
+                          size="Small"
+                          icon={ MdOutlineMusicNote }
+                          title="No music in this scene"
+                          subtitle="Score, themes or source cues playing under this scene."
+                        /> }
+
+                        <Button
+                          type="Inline"
+                          size="Small"
+                          icon={ MdAdd }
+                          label="Add music to scene"
+                          onClick={ () => { setMusicPicks([]); setShowAddMusic( true ) } }
+                        />
+                      </section>
+
+
                       <Button type="Primary" icon={ MdCheck } label="Save Changes" stretch onClick={ () => null } />
 
 
@@ -282,6 +384,38 @@ export default function Home() {
                         props={ propCatalogue.filter( ix => !cast.props.some( entry => entry.id === ix.id )) }
                         onAdd={ addProps }
                         onCreateProp={ createProp }
+                      />
+
+                      <AddToListModal
+                        show={ showAddSound }
+                        onClose={ () => setShowAddSound( false ) }
+                        id="sceneSounds"
+                        title="Add Sounds to Scene"
+                        icon={ MdOutlineVolumeUp }
+                        confirmLabel="Add Sounds"
+                        label="Sounds"
+                        searchPlaceholder="Search sounds"
+                        emptyLabel="No sounds selected"
+                        groups={ categoryGroups( sounds, sceneSounds, soundCategoryOptions ) }
+                        selected={ soundPicks }
+                        onSelectedChange={ setSoundPicks }
+                        onAdd={ ( ids ) => updateSounds([ ...sceneSounds, ...ids ]) }
+                      />
+
+                      <AddToListModal
+                        show={ showAddMusic }
+                        onClose={ () => setShowAddMusic( false ) }
+                        id="sceneMusic"
+                        title="Add Music to Scene"
+                        icon={ MdOutlineMusicNote }
+                        confirmLabel="Add Music"
+                        label="Music"
+                        searchPlaceholder="Search music"
+                        emptyLabel="No music selected"
+                        groups={ categoryGroups( music, sceneMusic, musicCategoryOptions ) }
+                        selected={ musicPicks }
+                        onSelectedChange={ setMusicPicks }
+                        onAdd={ ( ids ) => updateMusic([ ...sceneMusic, ...ids ]) }
                       />
 
                       <CreateSceneModal

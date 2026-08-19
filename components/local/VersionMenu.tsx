@@ -19,20 +19,20 @@ export default function VersionMenu({ versions, onSelect, onDownload }: VersionM
   const row = (version: DocumentVersion) => (
     <div key={version.id} className="flex flex-row items-center gap-2">
 
-      <button
-        type="button"
-        onClick={() => onSelect?.(version.id)}
-        className="grow flex flex-row items-start gap-2 cursor-pointer text-left p-2 rounded-lg hover:bg-zinc-700"
+      <div
+        className="grow flex flex-row items-start gap-2 cursor-pointer text-left p-2 rounded-lg"
       >
         <MdOutlineDescription size={20} className="mt-0.5 shrink-0" />
 
-        <span className="flex flex-col">
+        <span className="flex flex-col grow">
           <span>{version.label}</span>
           <span className="text-sm opacity-60">Updated {formatVersionDate(version.updated)}</span>
         </span>
-      </button>
 
-      <Button type="Tertiary" size="Small" icon={MdDownload} onClick={() => onDownload?.(version.id)} />
+        <Button type="Tertiary" size="Small" icon={MdDownload} onClick={() => onDownload?.(version.id)} />
+      </div>
+
+      
 
     </div>
   );

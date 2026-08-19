@@ -121,8 +121,7 @@ export default function Home() {
             <SectionHeader
               label={ currentSound?.name || "Sound" }
               rightButtons={[
-                { icon: MdAutoAwesome, label: "Generate Sound", type: "Primary", onClick: () => null },
-                { icon: MdOutlineViewAgenda, label: "Add to Scene", type: "Secondary", onClick: () => setShowAddScene( true ) }
+                { icon: MdAutoAwesome, label: "Generate Reference", type: "Primary", onClick: () => null },
               ]}
               menu={[
                 { id: "categories", label: "Manage categories…", icon: MdOutlineLabel, onClick: () => setShowCategories( true ) },

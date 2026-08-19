@@ -29,7 +29,6 @@ export default function Home() {
   // Edits live here until there is somewhere to save them — keyed by track id so
   // switching tracks keeps whatever was typed against each one.
   const [sceneEdits, setSceneEdits] = useState<Record<string, string[]>>({})
-  const [promptEdits, setPromptEdits] = useState<Record<string, string>>({})
   const [music, setMusic] = useState<MusicProps[]>([])
   const [categories, setCategories] = useState<OptionType[]>( musicCategoryOptions )
 
@@ -43,8 +42,6 @@ export default function Home() {
   }, [ project ])
 
   const currentTrack = music.find( ix => ix.id === activeTrack)
-
-  const prompt = ( activeTrack ? promptEdits[ activeTrack ] : undefined ) ?? currentTrack?.prompt ?? ""
 
   const scenes = ( activeTrack ? sceneEdits[ activeTrack ] : undefined ) ?? currentTrack?.scenes ?? []
 
@@ -121,10 +118,6 @@ export default function Home() {
           <div className="grow border-s bg-zinc-900 border-color">
             <SectionHeader
               label={ currentTrack?.name || "Music" }
-              rightButtons={[
-                { icon: MdAutoAwesome, label: "Generate Track", type: "Primary", onClick: () => null },
-                { icon: MdOutlineViewAgenda, label: "Add to Scene", type: "Secondary", onClick: () => setShowAddScene( true ) }
-              ]}
               menu={[
                 { id: "categories", label: "Manage categories…", icon: MdOutlineLabel, onClick: () => setShowCategories( true ) },
                 { id: "duplicate", label: "Duplicate track", icon: MdContentCopy, onClick: () => null },
@@ -134,31 +127,6 @@ export default function Home() {
 
 
                     <div className="p-5 gap-5 flex flex-col max-w-200 mx-auto">
-
-
-                      {/* The prompt sits above everything — this is the thing you write. */}
-                      <div className="wrapper p-4 flex flex-col gap-3">
-
-                        <Input
-                          type="textarea"
-                          id="prompt"
-                          rows={ 4 }
-                          label="Describe the track"
-                          placeholder="Sparse ambient score, sustained strings and a single clean guitar harmonic, warm and unhurried…"
-                          value={ prompt }
-                          onChange={ ( value ) => activeTrack && setPromptEdits( prev => ({ ...prev, [ activeTrack ]: value })) }
-                        />
-
-                        <div className={ baseStyle.inlineRow }>
-                          <Input type="text" id="mood" label="Mood" value={ currentTrack?.mood } />
-                          <Input type="select" id="category" label="Category" value={ currentTrack?.category } options={ categories } />
-                        </div>
-
-                        <div className={`${ baseStyle.inlineRow } justify-end`}>
-                          <Button type="Primary" icon={ MdAutoAwesome } label="Generate Track" onClick={ () => null } />
-                        </div>
-
-                      </div>
 
 
                       <AudioPlayer
@@ -171,6 +139,14 @@ export default function Home() {
                       <div className={ baseStyle.inlineRow }>
                         <Input type="text" id="name" label="Name of the Track" value={ currentTrack?.name }  />
                       </div>
+
+                      <div className={ baseStyle.inlineRow }>
+                        <Input type="select" id="category" label="Category" value={ currentTrack?.category } options={ categories }  />
+                        <Input type="text" id="mood" label="Mood" value={ currentTrack?.mood }  />
+                      </div>
+
+
+                      <Input type="textarea" id="prompt" label="Prompt" value={ currentTrack?.prompt } />
 
                       <Input type="textarea" id="description" label="Description" hint="(optional)" value={ currentTrack?.description } />
 
